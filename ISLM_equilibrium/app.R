@@ -2,25 +2,10 @@ library(shinyjs)
 library(shiny)
 library(readr)
 library(plotly)
-
-choicesIS = c("alpha","iy","ir","cpi","bari","g")
-choicesNamesIS = c("\\\\\\alpha",
-                 "\\\\I_y",
-                 "\\\\I_r",
-                 "\\\\C_{\\pi}",
-                 "\\\\\\bar{I}",
-                 "\\\\g")
-choicesIS <- setNames(choicesIS, choicesNamesIS)
-
-choicesLM = c("p","ly","lr","Ms")
-choicesNamesLM = c("\\\\p",
-                 "\\\\L_y",
-                 "\\\\L_r",
-                 "\\\\M^s")
-choicesLM <- setNames(choicesLM, choicesNamesLM)
+source("../src/ui_functions.r")
 
 ui <- fluidPage(
-    includeCSS("www/style.css"),
+    includeCSS("../www/style.css"),
     useShinyjs(),
     withMathJax(),
     
@@ -92,46 +77,18 @@ ui <- fluidPage(
                            #        sliderInput("Mmax","M max", 100,4000,2000,step = 100)       
                            # )
                        ),
-                       div(
-                           fluidRow(
-                               column(4,
-                                      actionButton("shock", "Ajouter un choc", `data-toggle`="collapse", `data-target`="#shock_set", style = "margin-bottom: 15px;")
-                               )
+                       fluidRow(
+                           column(4,
+                                  actionButton("shock", "Ajouter un choc", `data-toggle`="collapse", `data-target`="#shock_set", style = "margin-bottom: 15px;")
                            )
                        ),
                        div(id = "shock_set", class = "collapse",
                            fluidRow(
                                column(5,
-                                      selectizeInput("shocked_var_IS","Variable choquée (IS):",
-                                                     choicesIS,
-                                                     options = list(render = I("
-                              {
-                                item: function(item, escape) {
-                                        var html = katex.renderToString(item.label);
-                                        return '<div>' + html + '</div>';
-                                      },
-                                option: function(item, escape) {
-                                          var html = katex.renderToString(item.label);
-                                          return '<div>' + html + '</div>';
-                                        }
-                              }"))
-                                      )
+                                      IS_shock
                                ),
                                column(5,
-                                      selectizeInput("shocked_var_LM","Variable choquée (LM):",
-                                                     choicesLM,
-                                                     options = list(render = I("
-                              {
-                                item: function(item, escape) {
-                                        var html = katex.renderToString(item.label);
-                                        return '<div>' + html + '</div>';
-                                      },
-                                option: function(item, escape) {
-                                          var html = katex.renderToString(item.label);
-                                          return '<div>' + html + '</div>';
-                                        }
-                              }"))
-                                      )
+                                      LM_shock
                                )
                            ),
                            fluidRow(
@@ -314,10 +271,6 @@ server <- function(session, input, output) {
         )
         fig = fig %>% layout(xaxis = revenu, yaxis = interest)
         fig
-    })
-    
-    output$functions <- renderPlotly({
-        
     })
 }
 

@@ -2,17 +2,11 @@ library(shinyjs)
 library(shiny)
 library(readr)
 library(plotly)
-
-choices = c("p","ly","lr","ystar","Ms")
-choicesNames = c("\\\\p",
-                 "\\\\L_y",
-                 "\\\\L_r",
-                 "\\\\y*",
-                 "\\\\M^s")
-choices <- setNames(choices, choicesNames)
+source("../src/ui_functions.r")
+source("../src/LM_functions.r", local = T)
 
 ui <- fluidPage(
-    includeCSS("www/style.css"),
+    includeCSS("../www/style.css"),
     useShinyjs(),
     withMathJax(),
     
@@ -65,35 +59,18 @@ ui <- fluidPage(
                                   sliderInput("Mmax","M max", 100,4000,2000,step = 100)       
                            )
                        ),
-                       div(
-                           fluidRow(
-                               column(4,
-                                      actionButton("shock", "Ajouter un choc", `data-toggle`="collapse", `data-target`="#shock_set", style = "margin-bottom: 15px;")
-                               )
+                       fluidRow(
+                           column(4,
+                                  actionButton("shock", "Ajouter un choc", `data-toggle`="collapse", `data-target`="#shock_set", style = "margin-bottom: 15px;")
                            )
                        ),
                        div(id = "shock_set", class = "collapse",
                            fluidRow(
-                               column(6,
-                                      selectizeInput("shocked_var","Variable choquée:",
-                                                     choices,
-                                                     options = list(render = I("
-                              {
-                                item: function(item, escape) {
-                                        var html = katex.renderToString(item.label);
-                                        return '<div>' + html + '</div>';
-                                      },
-                                option: function(item, escape) {
-                                          var html = katex.renderToString(item.label);
-                                          return '<div>' + html + '</div>';
-                                        }
-                              }"))
-                                      )
-                               )
-                           ),
-                           fluidRow(
-                               column(6,
-                                    numericInput("new_value","Nouvelle Valeur", value = NULL)
+                               column(5,
+                                      LM_shock
+                               ),
+                               column(4,
+                                    numericInput("new_value_LM","Nouvelle Valeur", value = NULL)
                                )
                            )
                        )
@@ -110,8 +87,7 @@ ui <- fluidPage(
                    )
             ),
             column(9,
-                   plotlyOutput("diagrammes", height = 500)
-                   # plotlyOutput("functions")
+                   plotlyOutput("RM_LM_plot", height = 500)
             )
         )
     )
@@ -122,7 +98,7 @@ server <- function(session, input, output) {
         shock = F,
         params = c(),
         shocked_params = c(),
-        eq = 0
+        eq = list()
     )
     
     observeEvent({
@@ -137,8 +113,8 @@ server <- function(session, input, output) {
                           "lr" = input$lr,
                           "ystar" = input$ystar,
                           "Ms" = input$Ms)
-
-        values$eq = unname(1/input$lr*(input$Ms/input$p-input$ly*input$ystar))
+        
+        values$eq$r = unname(1/input$lr*(input$Ms/input$p-input$ly*input$ystar))
     })
     
     observeEvent({
@@ -154,107 +130,21 @@ server <- function(session, input, output) {
     })
     
     observeEvent({
-        input$shocked_var
-        input$new_value
+        input$shocked_var_LM
+        input$new_value_LM
     },{
-        # browser()
+        browser()
         if(values$shock){
             values$shocked_params = values$params
-            if(!is.na(input$new_value)){
-                values$shocked_params[input$shocked_var] = input$new_value
-                values$new_eq = unname(1/values$shocked_params["lr"]*(values$shocked_params["Ms"]/values$shocked_params["p"]-values$shocked_params["ly"]*values$shocked_params["ystar"]))
+            if(!is.na(input$new_value_LM)){
+                values$shocked_params[input$shocked_var_LM] = input$new_value_LM
+                values$new_eq$r = unname(1/values$shocked_params["lr"]*(values$shocked_params["Ms"]/values$shocked_params["p"]-values$shocked_params["ly"]*values$shocked_params["ystar"]))
             }
         }
     })
     
-    lm_curve = function(lr,Ms,p,ly,prod,r0){
-        r = 1/lr*(Ms/p - ly*prod)
-        r[r < r0] = r0
-        return(r)
-    }
+    output$RM_LM_plot <- rm_lm_plot(session,input,output,values)
     
-    output$diagrammes <- renderPlotly({
-        masse = seq(0,input$Mmax,length.out = 1000)
-        prod = seq(0,input$ymax,length.out = 1000)
-        to_plot = data.frame(money = masse, revenu = prod)
-        fig1 = plot_ly(to_plot, x = ~money)
-        
-        fig1 = fig1 %>% add_segments(x = input$Ms, y = 0, xend = input$Ms, yend = 15, type = "scatter", mode = "lines", name = "$$M = M^s$$", color = I("blue"))
-        fig1 = fig1 %>% add_trace(y = 1/input$lr*(masse/input$p - input$ly*input$ystar), type = "scatter", mode = "lines", name = "$$M^d$$", color = I("red"))
-        fig1 = fig1 %>% add_segments(x = 0, y = values$eq, xend = input$Mmax, yend = values$eq, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE)
-
-        fig2 = plot_ly(to_plot, x = ~revenu)
-        fig2 = fig2 %>% add_trace(y = lm_curve(input$lr, input$Ms, input$p, input$ly, prod, input$r0), type = "scatter", mode = "lines", name = "$$LM_1$$", color = I("red"))
-        fig2 = fig2 %>% add_segments(0,values$eq,input$ystar,values$eq, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE)
-        fig2 = fig2 %>% add_segments(input$ystar,0,input$ystar,values$eq, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE)
-        
-        if(values$shock & !is.na(input$new_value)){
-            if(input$shocked_var == "Ms"){
-                fig1 = fig1 %>% add_segments(x = values$shocked_params["Ms"], y = 0, xend = values$shocked_params["Ms"], yend = 20, type = "scatter", mode = "lines", name = "$$M = M^s$$", color = "rgb(0,20,200)")
-                fig1 = fig1 %>% add_segments(x = 0, y = values$new_eq, xend = input$Mmax, yend = values$new_eq, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE)
-            } else{
-                fig1 = fig1 %>% add_trace(y = 1/values$shocked_params["lr"]*(masse/values$shocked_params["p"] - values$shocked_params["ly"]*values$shocked_params["ystar"]), type = "scatter", mode = "lines", name = "$$M^d$$", color = "rgb(0,200,20)")
-                fig1 = fig1 %>% add_segments(x = 0, y = values$new_eq, xend = input$Mmax, yend = values$new_eq, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE)
-            }
-            new_eq = list(
-                x = unname(values$shocked_params["Ms"]),
-                y = values$new_eq,
-                text = paste0("r*=",round(values$new_eq,1))
-            )
-            fig1 = fig1 %>% layout(annotations = new_eq)
-            
-            if(input$shocked_var != "ystar"){
-                fig2 = fig2 %>% add_trace(y = lm_curve(values$shocked_params["lr"],values$shocked_params["Ms"],values$shocked_params["p"],values$shocked_params["ly"],prod,input$r0), type = "scatter", mode = "lines", name = "$$LM_2$$", color = "rgb(0,200,20)")
-            }
-            fig2 = fig2 %>% add_segments(0,values$new_eq,values$shocked_params["ystar"],values$new_eq, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE)
-            fig2 = fig2 %>% add_segments(values$shocked_params["ystar"],0,values$shocked_params["ystar"],values$new_eq, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE)
-            lm_eq = list(
-                x = unname(values$shocked_params["ystar"]),
-                y = values$new_eq,
-                text = paste0("r*=",round(values$new_eq,1))
-            )
-            fig2 = fig2 %>% layout(annotations = lm_eq)
-        } else{
-            eq = list(
-                x = input$Ms,
-                y = values$eq,
-                text = paste0("r*=",round(values$eq,1))
-            )
-            fig1 = fig1 %>% layout(annotations = eq)
-            is_eq = list(
-                x = input$ystar,
-                y = values$eq,
-                text = paste0("r*=",round(values$eq,1))
-            )
-            fig2 = fig2 %>% layout(annotations = is_eq)
-        }
-        
-        f <- list(
-            family = "Courier New, monospace",
-            size = 18,
-            color = "#7f7f7f"
-        )
-        money <- list(
-            title = "Masse monétaire, M",
-            titlefont = f
-        )
-        revenu <- list(
-            title = "Revenu, y",
-            titlefont = f
-        )
-        interest <- list(
-            title = "Taux d'intérêt, r",
-            titlefont = f
-        )
-        fig1 = fig1 %>% layout(xaxis = money, yaxis = interest)
-        fig2 = fig2 %>% layout(xaxis = revenu, yaxis = interest)
-        fig = subplot(fig1,fig2,shareY = TRUE,titleX = TRUE)
-        fig
-    })
-    
-    output$functions <- renderPlotly({
-        
-    })
 }
 
 shinyApp(ui = ui, server = server)
