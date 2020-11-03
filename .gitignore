@@ -1,1 +1,8 @@
-rsconnect/
+LM_BB/rsconnect/
+goods_market/rsconnect/
+money_market/rsconnect/
+ISLM_equilibrium/rsconnect/
+.Rproj.user
+.Rhistory
+*.Rproj
+*.html
