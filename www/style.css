@@ -27,3 +27,15 @@ padding: 0 10px;
   padding-left: 5px;
   padding-right: 5px;
 }
+#markets, #walras_law, #dep_rev_table{
+width: 80%;
+margin:auto;
+margin-top: 20px;
+}
+table, th, td {
+  border: 1px solid black;
+}
+
+th, td {
+  padding: 10px;
+}
