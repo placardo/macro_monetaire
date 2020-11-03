@@ -5,6 +5,8 @@ library(plotly)
 source("../src/ui_functions.r")
 source("../src/LM_functions.r")
 source("../src/IS_functions.r")
+source("../src/LaborMarket_functions.r")
+source("../src/BB_functions.r")
 
 ui <- fluidPage(
     includeCSS("../www/style.css"),
@@ -104,9 +106,9 @@ ui <- fluidPage(
             ),
             column(9,
                    tabsetPanel(
-                       tabPanel("Marché des biens",
-                                plotlyOutput("FFD_IS_plot", height = 600)
-                       ),
+                       # tabPanel("Marché des biens",
+                       #          plotlyOutput("FFD_IS_plot", height = 600)
+                       # ),
                        tabPanel("Loi de Walras",
                                 tags$table(id = "dep_rev_table",
                                     tags$tr(
@@ -161,11 +163,11 @@ ui <- fluidPage(
                                     tags$p(tags$b(tags$ins("'Marché' de la monnaie:")), " \\(M^s = M^d_E+M^d_M\\),")
                                 ),
                                 tags$div(id = "walras_law",
-                                    tags$p(tags$b(tags$ins("Loi de Walras"))),
+                                    tags$p(tags$b(tags$ins("Loi de Walras (D = O)"))),
                                     tags$p("\\( PY^d + WN^d + r P_B B^d + M^d = PY^s + WN^s + r P_B B^s + M^s \\)"),
                                     tags$p("\\( P(Y^d - Y^s) + W(N^d - N^s) + r P_B (B^d - B^s) + M^d - M^s = 0 \\)")
                                 ),
-                                plotlyOutput("real_econ", height = 300)
+                                plotlyOutput("real_econ", height = 600)
                        ),
                        tabPanel("'Marché' de la monnaie",
                                 plotlyOutput("RM_LM_plot", height = 600)  
@@ -264,11 +266,38 @@ server <- function(session, input, output) {
         }
     })
     
-    output$FFD_IS_plot <- fortyFiveISPlot(session,input,output,values)
-    output$RM_LM_plot <- rm_lm_plot(session,input,output,values)
+    output$FFD_IS_plot <- renderPlotly({
+        fig1 = fortyFivePlot(input,output,values)
+        fig2 = ISPlot(input,output,values)
+        fig = subplot(fig1,fig2,shareX = TRUE,titleY = TRUE)
+        fig
+    })
+    
+    output$RM_LM_plot <- renderPlotly({
+        fig1 = RMPlot(input,output,values)
+        fig2 = LMPlot(input,output,values)
+        fig = subplot(fig1,fig2,shareX = TRUE,titleY = TRUE)
+        fig
+    }) 
+    
+    output$real_econ <- renderPlotly({
+        fig1 = fortyFivePlot(input,output,values)
+        fig2 = laborMarketPlot(input,output,values)
+        fig3 = RMPlot(input,output,values)
+        fig4 = BBPlot(input,output,values)
+        fig = subplot(fig1,fig2,fig3,fig4, nrows = 2, titleX = F, titleY = F)
+        fig = fig %>% layout(annotations = list(
+            list(x = 0.12, y = 1, text = "Marché des biens et services", showarrow = F, xref = "paper", yref = "paper"),
+            list(x = 0.82, y = 1, text = "Marché du travail", showarrow = F, xref = "paper", yref = "paper"),
+            list(x = 0.15, y = 0.43, text = "'Marché' de la monnaie", showarrow = F, xref = "paper", yref = "paper"),
+            list(x = 0.82, y = 0.43, text = "Marché des titres", showarrow = F, xref = "paper", yref = "paper")
+        ), showlegend = F)
+    })
     
     output$Bonds_plot <- renderPlotly({
-        
+        fig1 = BBPlot(input,output,values)
+        fig2
+        fig = subplot(fig1,fig2, nrows = 2, titleX = F, titleY = F)
     })
 }
 
