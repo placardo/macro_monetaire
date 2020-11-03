@@ -3,6 +3,7 @@ library(shiny)
 library(readr)
 library(plotly)
 source("../src/ui_functions.r")
+source("../src/LM_functions.r")
 
 ui <- fluidPage(
     includeCSS("../www/style.css"),
@@ -29,49 +30,15 @@ ui <- fluidPage(
             column(3,
                    div(id = "settings",
                        h4("Paramètres de IS"),
-                       fluidRow(
-                           column(4,
-                                  numericInput("alpha","\\(\\alpha\\)",0,1,value = 0.6,step=0.05)
-                           ),
-                           column(4,
-                                  numericInput("iy","\\(I_y\\)",0,1,value = 0.05,step=0.05)
-                           ),
-                           column(4,
-                                  numericInput("ir","\\(I_r\\)",-1000,1000,value = -100,step=10)
-                           )
-                       ),
-                       fluidRow(
-                           column(4,
-                                  numericInput("cpi","\\(C_{\\pi}\\)",0,1000,value = 200,step=10)
-                           ),
-                           column(4,
-                                  numericInput("bari","\\(\\bar{I}\\)",0,1000,value = 350,step=10)
-                           ),
-                           column(4,
-                                  numericInput("g","\\(g\\)",0,1000,value = 350,step=10)
-                           )
-                       ),
+                       ui_IS_params1,
+                       ui_IS_params2,
                        h4("Paramètres de LM"),
-                       fluidRow(
-                           column(4,
-                                  numericInput("p","\\(p\\)",0,10,value = 2,step=1)
-                           ),
-                           column(4,
-                                  numericInput("ly","\\(L_y\\)",0,1,value = 0.9,step=0.05)
-                           ),
-                           column(4,
-                                  numericInput("lr","\\(L_r\\)",-1000,0,value = -150,step=10)
-                           )
-                       ),
-                       fluidRow(
-                           column(6,
-                                  numericInput("Ms","\\(M^s\\)", 0,4000,value=1000,step = 100)       
-                           )
-                       ),
+                       ui_LM_params1,
+                       ui_LM_params2,
                        h4("Paramètres des graphs"),
                        fluidRow(
                            column(6,
-                                  sliderInput("ymax","y max", 100,10000,3000,step = 100)          
+                                  sliderInput("ymax","y max", 100,10000,2500,step = 100)          
                            )#,
                            # column(6,
                            #        sliderInput("Mmax","M max", 100,4000,2000,step = 100)       
@@ -104,7 +71,7 @@ ui <- fluidPage(
                    div(id = "model",
                        h4("Équation de demande de biens:"),
                        helpText(class = "math",
-                                "$$y = (\\alpha + I_y) \\cdot y + I_r \\cdot r + C_{\\pi} + \\bar{I} + g$$"
+                                "$$Y^d = (\\alpha + I_y) \\cdot y + I_r \\cdot r + C_{\\pi} + \\bar{I} + g$$"
                        ),
                        h4("Équation de demande de monnaie:"),
                        helpText(class = "math",
@@ -226,7 +193,7 @@ server <- function(session, input, output) {
         
         fig = plot_ly(to_plot, x = ~revenu)
         fig = fig %>% add_trace(y = ((1-input$alpha-input$iy)*prod-input$cpi-input$bari-input$g)/input$ir, type = "scatter", mode = "lines", name = "$$IS_1$$", line = list(color = "#ff0000"))
-        fig = fig %>% add_trace(y = 1/input$lr*(input$Ms/input$p-input$ly*prod), type = "scatter", mode = "lines", name = "$$LM_1$$", line = list(color = "#007bff"))
+        fig = fig %>% add_trace(y = lm_curve(input$lr, input$Ms, input$p, input$ly, prod, input$rmin), type = "scatter", mode = "lines", name = "$$LM_1$$", line = list(color = "#007bff"))
         
         fig = fig %>% add_segments(0,values$eq$r,values$eq$y,values$eq$r, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE) 
         fig = fig %>% add_segments(values$eq$y,0,values$eq$y,values$eq$r, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE)
@@ -236,7 +203,7 @@ server <- function(session, input, output) {
                 fig = fig %>% add_trace(y = ((1-values$shocked_params_IS["alpha"]-values$shocked_params_IS["iy"])*prod-values$shocked_params_IS["cpi"]-values$shocked_params_IS["bari"]-values$shocked_params_IS["g"])/values$shocked_params_IS["ir"], type = "scatter", mode = "lines", name = "$$IS_2$$", line = list(color = "#aa0000"))
             }
             if(!is.na(input$new_value_LM)){
-                fig = fig %>% add_trace(y = 1/values$shocked_params_LM["lr"]*(values$shocked_params_LM["Ms"]/values$shocked_params_LM["p"]-values$shocked_params_LM["ly"]*prod), type = "scatter", mode = "lines", name = "$$LM_2$$", line = list(color = "#02346b"))
+                fig = fig %>% add_trace(y = lm_curve(values$shocked_params_LM["lr"],values$shocked_params_LM["Ms"],values$shocked_params_LM["p"],values$shocked_params_LM["ly"],prod,input$rmin), type = "scatter", mode = "lines", name = "$$LM_2$$", line = list(color = "#02346b"))
             }
             fig = fig %>% add_segments(0,values$new_eq$r,values$new_eq$y,values$new_eq$r, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE) 
             fig = fig %>% add_segments(values$new_eq$y,0,values$new_eq$y,values$new_eq$r, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE)

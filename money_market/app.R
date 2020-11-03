@@ -29,26 +29,11 @@ ui <- fluidPage(
         fluidRow(
             column(3,
                    div(id = "settings",
+                       ui_LM_params1,
+                       ui_LM_params2,
                        fluidRow(
-                           column(4,
-                                  numericInput("p","\\(p\\)",0,10,value = 2,step=1)
-                           ),
-                           column(4,
-                                  numericInput("ly","\\(L_y\\)",0,1,value = 0.5,step=0.05)
-                           ),
-                           column(4,
-                                  numericInput("lr","\\(L_r\\)",-1000,0,value = -100,step=10)
-                           )
-                       ),
-                       fluidRow(
-                           column(4,
-                                  numericInput("Ms","\\(M^s\\)", 0,4000,value=1000,step = 100)       
-                           ),
                            column(4,
                                   numericInput("ystar","\\(y*\\)",0,10000,value = 2000, step=10)
-                           ),
-                           column(4,
-                                  numericInput("r0","\\(r_0\\)",0,5,value = 1, step = 0.5)
                            )
                        ),
                        fluidRow(
@@ -133,7 +118,6 @@ server <- function(session, input, output) {
         input$shocked_var_LM
         input$new_value_LM
     },{
-        browser()
         if(values$shock){
             values$shocked_params = values$params
             if(!is.na(input$new_value_LM)){

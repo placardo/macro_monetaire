@@ -53,7 +53,7 @@ ui <- fluidPage(
                    ),
                    fluidRow(
                      column(6,
-                      numericInput("r0","\\(r_0\\)",0,10,value = 5, step=1)
+                      numericInput("r0","\\(r_0\\)",0,10,value = 4.676471, step=1)
                      ),
                      column(6,
                       sliderInput("ymax","y max", 100,10000,4000,step = 100)       
@@ -113,7 +113,7 @@ server <- function(session, input, output) {
   values <- reactiveValues(
     shock = F,
     params = c(),
-    shocked_params = c()
+    shocked_params_IS = c()
   )
   
   observeEvent({
@@ -153,10 +153,10 @@ server <- function(session, input, output) {
   },{
     # browser()
     if(values$shock){
-      values$shocked_params = values$params
+      values$shocked_params_IS = values$params
       if(!is.na(input$new_value_IS)){
-        values$shocked_params[input$shocked_var_IS] = input$new_value_IS
-        values$new_eq$y = unname((values$shocked_params["ir"]*values$shocked_params["r"]+values$shocked_params["cpi"]+values$shocked_params["bari"]+values$shocked_params["g"])/(1-values$shocked_params["alpha"]-values$shocked_params["iy"]))
+        values$shocked_params_IS[input$shocked_var_IS] = input$new_value_IS
+        values$new_eq$y = unname((values$shocked_params_IS["ir"]*values$shocked_params_IS["r"]+values$shocked_params_IS["cpi"]+values$shocked_params_IS["bari"]+values$shocked_params_IS["g"])/(1-values$shocked_params_IS["alpha"]-values$shocked_params_IS["iy"]))
       }
     }
   })
