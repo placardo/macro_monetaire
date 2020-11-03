@@ -127,7 +127,12 @@ server <- function(session, input, output) {
         }
     })
     
-    output$RM_LM_plot <- rm_lm_plot(session,input,output,values)
+    output$RM_LM_plot <- renderPlotly({
+        fig1 = RMPlot(input,output,values)
+        fig2 = LMPlot(input,output,values)
+        fig = subplot(fig1,fig2,shareX = TRUE,titleY = TRUE)
+        fig
+    }) 
     
 }
 

@@ -161,8 +161,19 @@ server <- function(session, input, output) {
     }
   })
   
-  output$fortyfivedegrees_IS <- fortyFiveISPlot(session,input,output,values)
-  output$fortyfivedegrees_IeqS <- fortyFiveIeqSPlot(session,input,output,values)
+  output$fortyfivedegrees_IS <- renderPlotly({
+    fig1 = fortyFivePlot(input,output,values)
+    fig2 = ISPlot(input,output,values)
+    fig = subplot(fig1,fig2,shareX = TRUE,titleY = TRUE)
+    fig
+  })
+  
+  output$fortyfivedegrees_IeqS <- renderPlotly({
+    fig1 = fortyFivePlot(input,output,values)
+    fig2 = IeqSPlot(input,output,values)
+    fig = subplot(fig1,fig2,shareX = TRUE,titleY = TRUE)
+    fig
+  })
 }
 
 shinyApp(ui = ui, server = server)
