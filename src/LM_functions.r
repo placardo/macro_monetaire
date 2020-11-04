@@ -14,18 +14,18 @@ RMPlot <- function(input,output,values){
     fig = fig %>% add_segments(x = input$Ms, y = 0, xend = input$Ms, yend = 15, type = "scatter", mode = "lines", name = "$$M = M^s$$", color = I("blue"),
                                  hovertemplate = paste("Ms=%{x:.0f}","<extra></extra>"))
     fig = fig %>% add_trace(y = lm_curve(input$lr, masse,input$p,input$ly,values$eq$y, input$rmin), type = "scatter", mode = "lines", name = "$$M^d$$", color = I("red"),
-                              hovertemplate = paste("Ms=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>"))
+                              hovertemplate = paste("Md=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>"))
     fig = fig %>% add_segments(x = 0, y = values$eq$r, xend = input$Mmax, yend = values$eq$r, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE,
                                  hovertemplate = paste("Ms=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>"))
     
-    if(values$shock & !is.na(input$new_value_LM)){
+    if(values$shock & !is.null(input$new_value_LM)){
       if(input$shocked_var_LM == "Ms"){
         fig = fig %>% add_segments(x = values$shocked_params_LM["Ms"], y = 0, xend = values$shocked_params_LM["Ms"], yend = 20, type = "scatter", mode = "lines", name = "$$M = M^s$$", color = "rgb(0,20,200)",
                                      hovertemplate = paste("Ms=%{x:.0f}","<extra></extra>"))
         fig = fig %>% add_segments(x = 0, y = values$new_eq$r, xend = input$Mmax, yend = values$new_eq$r, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE,
                                      hovertemplate = paste("Ms=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>"))
-      } else{
-        fig = fig %>% add_trace(y = lm_curve(values$shocked_params_LM["lr"],masse,values$shocked_params_LM["p"],values$shocked_params_LM["ly"],values$shocked_params_LM["ystar"],input$rmin), type = "scatter", mode = "lines", name = "$$M^d$$", color = "rgb(0,200,20)",
+      } else if(input$shocked_var_LM != "Ms"){
+        fig = fig %>% add_trace(y = lm_curve(values$shocked_params_LM["lr"],masse,values$shocked_params_LM["p"],values$shocked_params_LM["ly"],values$new_eq$y,input$rmin), type = "scatter", mode = "lines", name = "$$M^d$$", color = "rgb(0,200,20)",
                                   hovertemplate = paste("Ms=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>"))
         fig = fig %>% add_segments(x = 0, y = values$new_eq$r, xend = input$Mmax, yend = values$new_eq$r, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE,
                                      hovertemplate = paste("Ms=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>"))
@@ -36,6 +36,11 @@ RMPlot <- function(input,output,values){
         text = paste0("r*=",round(values$new_eq$r,1))
       )
       fig = fig %>% layout(annotations = new_eq)
+    } else if(values$shock & ! is.null(input$new_value_IS)){
+      fig = fig %>% add_trace(y = lm_curve(values$shocked_params_LM["lr"],masse,values$shocked_params_LM["p"],values$shocked_params_LM["ly"],values$new_eq$y,input$rmin), type = "scatter", mode = "lines", name = "$$M^d$$", color = "rgb(0,200,20)",
+                              hovertemplate = paste("Ms=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>"))
+      fig = fig %>% add_segments(x = 0, y = values$new_eq$r, xend = input$Mmax, yend = values$new_eq$r, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE,
+                                 hovertemplate = paste("Ms=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>"))
     } else{
       eq = list(
         x = input$Ms,

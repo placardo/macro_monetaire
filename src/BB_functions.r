@@ -40,7 +40,7 @@ BBPlot <- function(input,output,values){
     titlefont = f
   )
   salReels <- list(
-    title = "Prix des titres, Pb",
+    title = "Prix des titres, Pb (inverse de r)",
     titlefont = f,
     range = c(70,110)
   )
