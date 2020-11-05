@@ -123,6 +123,7 @@ server <- function(session, input, output) {
     input$cpi
     input$bari
     input$g
+    input$r0
   },{
     values$params = c("alpha" = input$alpha,
                       "iy" = input$iy,
