@@ -5,7 +5,7 @@ fortyFivePlot <- function(input, output,values){
     
     fig = fig %>% add_trace(y = prod, type = "scatter", mode = "lines", name = "$$Y^d=y$$", color = I("blue"),
       hovertemplate = "y=yd=%{y:.0f}<extra></extra>")
-    fig = fig %>% add_trace(y = (input$alpha + input$iy) * prod + input$ir*input$r0 + input$cpi + input$bari + input$g, type = "scatter", mode = "lines", name = "$$Y_1^d$$", color = I("red"),
+    fig = fig %>% add_trace(y = (input$alpha + input$iy) * prod + input$ir*values$eq$r + input$cpi + input$bari + input$g, type = "scatter", mode = "lines", name = "$$Y_1^d$$", color = I("red"),
       hovertemplate = paste("y=%{x:.0f}","<br>yd=%{y:.0f}","<extra></extra>"))
     if(values$eq$y > 0){
       fig = fig %>% add_segments(0,values$eq$y,values$eq$y,values$eq$y, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE,
@@ -13,6 +13,7 @@ fortyFivePlot <- function(input, output,values){
       fig = fig %>% add_segments(values$eq$y,0,values$eq$y,values$eq$y, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE,
         hovertemplate = paste("y=%{x:.0f}","<br>yd=%{y:.0f}","<extra></extra>"))
     }
+    fig = fig %>% add_trace(x = values$POTY, y = values$POTY, mode = "markers", marker = list(color = "red"), showlegend = F)
     
     if(values$shock & !is.na(input$new_value_IS)){
       fig = fig %>% add_trace(y = (values$shocked_params_IS["alpha"] + values$shocked_params_IS["iy"]) * prod + values$shocked_params_IS["ir"]*values$shocked_params_IS["r"] + values$shocked_params_IS["cpi"] + values$shocked_params_IS["bari"] + values$shocked_params_IS["g"], type = "scatter", mode = "lines", name = "$$Y_2^d$$", color = "rgb(0,200,20)",
