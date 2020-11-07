@@ -20,7 +20,7 @@ RMPlot <- function(input,output,values){
     
     if(values$shock & !is.na(input$new_value_LM)){
       if(input$shocked_var_LM == "Ms"){
-        fig = fig %>% add_segments(x = values$shocked_params_LM["Ms"], y = 0, xend = values$shocked_params_LM["Ms"], yend = 20, type = "scatter", mode = "lines", name = "$$M = M^s$$", color = "rgb(0,20,200)",
+        fig = fig %>% add_segments(x = values$shocked_params_LM["Ms"], y = 0, xend = values$shocked_params_LM["Ms"], yend = 15, type = "scatter", mode = "lines", name = "$$M = M^s$$", color = "rgb(0,20,200)",
                                      hovertemplate = paste("Ms=%{x:.0f}","<extra></extra>"))
         fig = fig %>% add_segments(x = 0, y = values$new_eq$r, xend = input$Mmax, yend = values$new_eq$r, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE,
                                      hovertemplate = paste("Ms=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>"))

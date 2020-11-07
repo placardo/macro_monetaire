@@ -82,7 +82,7 @@ server <- function(session, input, output) {
     values <- reactiveValues(
         shock = F,
         params = c(),
-        shocked_params = c(),
+        shocked_params_LM = c(),
         eq = list()
     )
     
@@ -119,10 +119,10 @@ server <- function(session, input, output) {
         input$new_value_LM
     },{
         if(values$shock){
-            values$shocked_params = values$params
+            values$shocked_params_LM = values$params
             if(!is.na(input$new_value_LM)){
-                values$shocked_params[input$shocked_var_LM] = input$new_value_LM
-                values$new_eq$r = unname(1/values$shocked_params["lr"]*(values$shocked_params["Ms"]/values$shocked_params["p"]-values$shocked_params["ly"]*values$shocked_params["ystar"]))
+                values$shocked_params_LM[input$shocked_var_LM] = input$new_value_LM
+                values$new_eq$r = unname(1/values$shocked_params_LM["lr"]*(values$shocked_params_LM["Ms"]/values$shocked_params_LM["p"]-values$shocked_params_LM["ly"]*values$shocked_params_LM["ystar"]))
             }
         }
     })
