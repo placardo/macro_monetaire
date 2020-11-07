@@ -120,6 +120,9 @@ ui <- fluidPage(
                        # tabPanel("Marché des biens",
                        #          plotlyOutput("FFD_IS_plot", height = 600)
                        # ),
+                       tabPanel("Comptes nationaux",
+                                uiOutput("comptes_nat")
+                       ),
                        tabPanel("Loi de Walras",
                                 tags$table(id = "dep_rev_table",
                                     tags$tr(
@@ -333,6 +336,142 @@ server <- function(session, input, output) {
         fig1 = BBPlot(input,output,values)
         fig2 = RPBPlot(input,output,values)
         fig = subplot(fig1,fig2, nrows = 1, shareY = T, titleX = T)
+    })
+    
+    output$lab_mark_plot <- renderPlotly({
+        fig1 = laborMarketPlot(input,output,values)
+        fig2 = firmEqPlot(input,output,values)
+        fig = subplot(fig1,fig2, nrows = 1, shareX = T, titleY = T)
+    })
+    
+    output$comptes_nat <- renderUI({
+        tags$table(id = "comptes_nat_table",
+                   tags$tr(
+                       tags$th(
+                           ""
+                       ),
+                       tags$th(
+                           "Marché des biens"
+                       ),
+                       tags$th(
+                           "Marché du travail"
+                       ),
+                       tags$th(
+                           "'Marché' de la monnaie"
+                       ),
+                       tags$th(
+                           "Marché des titres"
+                       ),
+                       tags$th(
+                           "Total"
+                       )
+                   ),
+                   tags$tr(
+                       tags$th(
+                           "Ménages"
+                       ),
+                       tags$td(class = "container-comptes",
+                               tags$p(class = "DD", "\\(C =\\)",format(round(input$alpha*values$eq$y+input$cpi)))
+                       ),
+                       tags$td(class = "container-comptes",
+                               tags$p(class = "OR", "\\(WN^s=\\)", format(round(input$W/values$p*values$eq$subN)))
+                       ),
+                       tags$td(class = "container-comptes",
+                               tags$p(class = "DD", "\\(M^d=\\)", format(round(values$p*(input$ly*values$eq$y + input$lr*values$eq$r))))
+                       ),
+                       tags$td(class = "container-comptes",
+                               tags$p(class = "DR", "\\(r P_B B=\\)",format(round(values$eq$r*values$eq$B)))
+                       ),
+                       tags$td(class = "container-comptes",
+                               tags$p(class = "Dep", "Dép =", format(round(input$alpha*values$eq$y+input$cpi + values$p*(input$ly*values$eq$y + input$lr*values$eq$r)))),
+                               tags$p(class = "R", "R = ", format(round(input$W/values$p*values$eq$subN+input$max_price*values$eq$r/100*values$eq$B)))
+                       )
+                   ),
+                   tags$tr(
+                       tags$th(
+                           "Entreprises"
+                       ),
+                       tags$td(class = "container-comptes",
+                               tags$p(class = "DD", "\\(I =\\)",format(round(input$iy*values$eq$y+input$ir*values$eq$r + input$bari))),
+                               tags$p(class = "OR", "\\(PY =\\)",format(round(values$p*values$eq$y)))
+                       ),
+                       tags$td(class = "container-comptes",
+                               tags$p(class = "DD", "\\(WN^d=\\)", format(round(input$W/values$p*values$eq$subN)))
+                       ),
+                       tags$td(
+                           ""
+                       ),
+                       tags$td(
+                           ""
+                       ),
+                       tags$td(class = "container-comptes",
+                               tags$p(class = "Dep", "Dép =", format(round(input$iy*values$eq$y+input$ir*values$eq$r + input$bari+input$W/values$p*values$eq$subN))),
+                               tags$p(class = "R", "R = ", format(round(values$p*values$eq$y)))
+                       )
+                   ),
+                   tags$tr(
+                       tags$th(
+                           "Gouvernement"
+                       ),
+                       tags$td(class = "container-comptes",
+                               tags$p(class = "DD", "\\(g =\\)",format(round(input$g)))
+                       ),
+                       tags$td(
+                           ""
+                       ),
+                       tags$td(
+                           ""
+                       ),
+                       tags$td(
+                           ""
+                       ),
+                       tags$td(
+                           ""
+                       )
+                   ),
+                   tags$tr(
+                       tags$th(
+                           "Banque Centrale"
+                       ),
+                       tags$td(
+                           ""
+                       ),
+                       tags$td(
+                           ""
+                       ),
+                       tags$td(class = "container-comptes",
+                               tags$p(class = "OD", "\\(M^s =\\)", format(round(input$Ms)))
+                       ),
+                       tags$td(class = "container-comptes",
+                               tags$p(class = "DR", "\\(B^d =\\)", format(round((1+values$eq$r/100)*input$Ms/input$max_price,2)))
+                       ),
+                       tags$td(
+                           ""
+                       )
+                   ),
+                   tags$tr(
+                       tags$th(
+                           "Total"
+                       ),
+                       tags$td(class = "container-comptes",
+                               tags$p(class = "D", "\\(D =\\)", format(round(input$alpha*values$eq$y+input$cpi+input$iy*values$eq$y+input$ir*values$eq$r + input$bari+input$g))),
+                               tags$p(class = "O", "\\(O =\\)", format(round(values$p*values$eq$y)))
+                       ),
+                       tags$td(class = "container-comptes",
+                               tags$p(class = "D", "\\(D =\\)", format(round(input$W/values$p*values$eq$subN))),
+                               tags$p(class = "O", "\\(O =\\)", format(round(input$W/values$p*values$eq$subN)))
+                       ),
+                       tags$td(
+                           "\\(\\)"
+                       ),
+                       tags$td(
+                           "\\(\\)"
+                       ),
+                       tags$td(
+                           "\\(\\)"
+                       )
+                   )
+            )
     })
 }
 
