@@ -48,7 +48,7 @@ LM_shock <- selectizeInput("shocked_var_LM","Variable choquée (LM):",
 
 ui_LM_params1 <- fluidRow(
   column(4,
-         numericInput("p","\\(p\\)",0,10,value = 1,step=1)
+         numericInput("p","\\(p\\)",0,1000,value = 100,step=1)
   ),
   column(4,
          numericInput("ly","\\(L_y\\)",0,1,value = 0.5,step=0.05)
@@ -105,12 +105,9 @@ ui_BB_params <- fluidRow(
 
 ui_LabM_params <- fluidRow(
   column(4,
-        numericInput("W","\\(\\bar{W}\\)",0,100,value = 40)
+        numericInput("W","\\(\\bar{W}\\)",0,100,value = 40,step=0.5)
   ),
   column(4,
-        numericInput("ny","\\(N_y\\)",0,1,value = 0.01,step = 0.01)
-  ),
-  column(4,
-         numericInput("sal_res","Sal. réserve",0,100,value = 10)
+         numericInput("sal_res","Sal. réserve",0,100,value = 6)
   )
 )
