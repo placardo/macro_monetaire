@@ -25,7 +25,7 @@ RMPlot <- function(input,output,values){
         fig = fig %>% add_segments(x = 0, y = values$new_eq$r, xend = input$Mmax, yend = values$new_eq$r, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE,
                                      hovertemplate = paste("Ms=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>"))
       } else if(input$shocked_var_LM != "Ms"){
-        fig = fig %>% add_trace(y = lm_curve(values$shocked_params_LM["lr"],masse,values$shocked_params_LM["p"],values$shocked_params_LM["ly"],values$new_eq$y,input$rmin), type = "scatter", mode = "lines", name = "$$M^d$$", color = "rgb(0,200,20)",
+        fig = fig %>% add_trace(y = lm_curve(values$shocked_params_LM["lr"],masse,values$shocked_params_LM["p"]/100,values$shocked_params_LM["ly"],values$new_eq$y,input$rmin), type = "scatter", mode = "lines", name = "$$M^d$$", color = "rgb(0,200,20)",
                                   hovertemplate = paste("Ms=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>"))
         fig = fig %>% add_segments(x = 0, y = values$new_eq$r, xend = input$Mmax, yend = values$new_eq$r, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE,
                                      hovertemplate = paste("Ms=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>"))
@@ -36,8 +36,8 @@ RMPlot <- function(input,output,values){
         text = paste0("r*=",round(values$new_eq$r,1))
       )
       fig = fig %>% layout(annotations = new_eq)
-    } else if(values$shock & ! is.null(input$new_value_IS)){
-      fig = fig %>% add_trace(y = lm_curve(values$shocked_params_LM["lr"],masse,values$shocked_params_LM["p"],values$shocked_params_LM["ly"],values$new_eq$y,input$rmin), type = "scatter", mode = "lines", name = "$$M^d$$", color = "rgb(0,200,20)",
+    } else if(values$shock & !is.null(input$new_value_IS)){
+      fig = fig %>% add_trace(y = lm_curve(values$shocked_params_LM["lr"],masse,values$shocked_params_LM["p"]/100,values$shocked_params_LM["ly"],values$new_eq$y,input$rmin), type = "scatter", mode = "lines", name = "$$M^d$$", color = "rgb(0,200,20)",
                               hovertemplate = paste("Md=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>"))
       fig = fig %>% add_segments(x = 0, y = values$new_eq$r, xend = input$Mmax, yend = values$new_eq$r, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE,
                                  hovertemplate = paste("Md=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>"))
@@ -56,7 +56,7 @@ RMPlot <- function(input,output,values){
       color = "#7f7f7f"
     )
     money <- list(
-      title = "Masse monétaire, M",
+      title = "Masse monétaire réelle, M/p",
       titlefont = f
     )
     interest <- list(
@@ -72,7 +72,7 @@ LMPlot <- function(input,output,values){
   to_plot = data.frame(money = masse, revenu = prod)
   
   fig = plot_ly(to_plot, x = ~revenu)
-  fig = fig %>% add_trace(y = lm_curve(input$lr, input$Ms, values$p, input$ly, prod, input$rmin), type = "scatter", mode = "lines", name = "$$LM_1$$", color = I("red"),
+  fig = fig %>% add_trace(y = lm_curve(input$lr, input$Ms, values$p, input$ly, prod, input$rmin), type = "scatter", mode = "lines", name = "$$LM_1$$", line = list(color = "#007bff"),
                             hovertemplate = paste("y=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>"))
   fig = fig %>% add_segments(0,values$eq$r,input$ystar,values$eq$r, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE,
                                hovertemplate = paste("y=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>"))
@@ -81,7 +81,7 @@ LMPlot <- function(input,output,values){
   
   if(values$shock & !is.na(input$new_value_LM)){      
     if(input$shocked_var_LM != "ystar"){
-      fig = fig %>% add_trace(y = lm_curve(values$shocked_params_LM["lr"],values$shocked_params_LM["Ms"],values$shocked_params_LM["p"],values$shocked_params_LM["ly"],prod,input$rmin), type = "scatter", mode = "lines", name = "$$LM_2$$", color = "rgb(0,200,20)",
+      fig = fig %>% add_trace(y = lm_curve(values$shocked_params_LM["lr"],values$shocked_params_LM["Ms"],values$shocked_params_LM["p"]/100,values$shocked_params_LM["ly"],prod,input$rmin), type = "scatter", mode = "lines", name = "$$LM_2$$", color = "rgb(0,200,20)",
                                 hovertemplate = paste("y=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>"))
     }
     fig = fig %>% add_segments(0,values$new_eq$r,values$shocked_params_LM["ystar"],values$new_eq$r, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE,

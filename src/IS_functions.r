@@ -13,10 +13,14 @@ fortyFivePlot <- function(input, output,values){
       fig = fig %>% add_segments(values$eq$y,0,values$eq$y,values$eq$y, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE,
         hovertemplate = paste("y=%{x:.0f}","<br>yd=%{y:.0f}","<extra></extra>"))
     }
-    fig = fig %>% add_trace(x = values$POTY, y = values$POTY, mode = "markers", marker = list(color = "red"), showlegend = F)
+    # fig = fig %>% add_trace(x = values$POTY, y = values$POTY, mode = "markers", marker = list(color = "red"), showlegend = F)
     
     if(values$shock & !is.na(input$new_value_IS)){
-      fig = fig %>% add_trace(y = (values$shocked_params_IS["alpha"] + values$shocked_params_IS["iy"]) * prod + values$shocked_params_IS["ir"]*values$shocked_params_IS["r"] + values$shocked_params_IS["cpi"] + values$shocked_params_IS["bari"] + values$shocked_params_IS["g"], type = "scatter", mode = "lines", name = "$$Y_2^d$$", color = "rgb(0,200,20)",
+      if(input$constant_r){
+        fig = fig %>% add_trace(y = (values$shocked_params_IS["alpha"] + values$shocked_params_IS["iy"]) * prod + values$shocked_params_IS["ir"]*values$shocked_params_IS["r"] + values$shocked_params_IS["cpi"] + values$shocked_params_IS["bari"] + values$shocked_params_IS["g"], type = "scatter", mode = "lines", line = list(color = 'rgb(150, 150, 150)', width = 1, dash = 'dash'), showlegend = F,
+                                hovertemplate = paste("y=%{x:.0f}","<br>yd=%{y:.0f}","<extra></extra>"))    
+      }
+      fig = fig %>% add_trace(y = (values$shocked_params_IS["alpha"] + values$shocked_params_IS["iy"]) * prod + values$shocked_params_IS["ir"]*values$new_eq$r + values$shocked_params_IS["cpi"] + values$shocked_params_IS["bari"] + values$shocked_params_IS["g"], type = "scatter", mode = "lines", name = "$$Y_2^d$$", color = "rgb(0,200,20)",
         hovertemplate = paste("y=%{x:.0f}","<br>yd=%{y:.0f}","<extra></extra>"))    
       
       if(values$new_eq$y > 0){
@@ -28,7 +32,8 @@ fortyFivePlot <- function(input, output,values){
         if(input$show_path){
           eq_tmp = values$eq$y
           for(i in 1:10){
-            new_eq_tmp = unname((values$shocked_params_IS["alpha"]+values$shocked_params_IS["iy"])*eq_tmp + values$shocked_params_IS["ir"]*values$shocked_params_IS["r"]+values$shocked_params_IS["cpi"]+values$shocked_params_IS["bari"]+values$shocked_params_IS["g"])
+            new_eq_tmp = unname((values$shocked_params_IS["alpha"]+values$shocked_params_IS["iy"])*eq_tmp + values$shocked_params_IS["ir"]*values$new_eq$r+values$shocked_params_IS["cpi"]+values$shocked_params_IS["bari"]+values$shocked_params_IS["g"])
+            
             fig = fig %>% add_segments(eq_tmp,eq_tmp,eq_tmp,new_eq_tmp, line = list(color = 'rgb(150,150,150', width = 1, dash = "dash"), showlegend=F,
               hovertemplate = paste("y=%{x:.0f}","<br>yd=%{y:.0f}","<extra></extra>"))
             fig = fig %>% add_segments(eq_tmp,new_eq_tmp,new_eq_tmp,new_eq_tmp, line = list(color = 'rgb(150,150,150', width = 1, dash = "dash"), showlegend=F,

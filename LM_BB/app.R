@@ -7,6 +7,7 @@ source("../src/LM_functions.r")
 source("../src/IS_functions.r")
 source("../src/LaborMarket_functions.r")
 source("../src/BB_functions.r")
+source("../src/ISLM_functions.r")
 
 # Revenu potentiel. On suppose dans ce modèle que la masse salariale et la productivité sont constantes
 POTY = 2912
@@ -93,6 +94,11 @@ ui <- fluidPage(
                                column(6, class = "collapse",
                                       checkboxInput("show_path", "Montrer le chemin")
                                )
+                           ),
+                           fluidRow(
+                               column(6,
+                                      checkboxInput("constant_r", "Montrer le niveau à r constant")
+                               )
                            )
                        )
                    ),
@@ -113,12 +119,9 @@ ui <- fluidPage(
             ),
             column(9,
                    tabsetPanel(
-                       # tabPanel("Marché des biens",
-                       #          plotlyOutput("FFD_IS_plot", height = 600)
+                       # tabPanel("Comptes nationaux",
+                       #          uiOutput("comptes_nat")
                        # ),
-                       tabPanel("Comptes nationaux",
-                                uiOutput("comptes_nat")
-                       ),
                        tabPanel("Loi de Walras",
                                 tags$table(id = "dep_rev_table",
                                     tags$tr(
@@ -179,6 +182,9 @@ ui <- fluidPage(
                                 ),
                                 plotlyOutput("real_econ", height = 700)
                        ),
+                       tabPanel("Marché des biens",
+                                plotlyOutput("FFD_IS_plot", height = 600)
+                       ),
                        tabPanel("Marché du travail",
                                 plotlyOutput("lab_mark_plot", height = 600)
                        ),
@@ -187,6 +193,9 @@ ui <- fluidPage(
                        ),
                        tabPanel("Marché des titres",
                                 plotlyOutput("Bonds_plot", height = 600)  
+                       ),
+                       tabPanel("Équilibre IS LM",
+                                plotlyOutput("eq_islm", height = 600)  
                        )
                    )
             )
@@ -239,7 +248,7 @@ server <- function(session, input, output) {
                              "Ms" = input$Ms)
     
         values$p = input$p/100
-    
+
         if(values$first){
             values$shocked_params_IS = values$params_IS
             values$shocked_params_LM = values$params_LM
@@ -279,8 +288,8 @@ server <- function(session, input, output) {
             values$shocked_params_IS = values$params_IS
             if(!is.na(input$new_value_IS)){
                 values$shocked_params_IS[input$shocked_var_IS] = input$new_value_IS
-                values$new_eq$y = unname((values$shocked_params_IS["ir"]*values$shocked_params_IS["r"]+values$shocked_params_IS["cpi"]+values$shocked_params_IS["bari"]+values$shocked_params_IS["g"])/(1-values$shocked_params_IS["alpha"]-values$shocked_params_IS["iy"]))
-                # values$new_eq = compute_equilibrium(values$shocked_params_IS["alpha"],values$shocked_params_IS["iy"],values$shocked_params_IS["ir"],values$shocked_params_IS["cpi"],values$shocked_params_IS["bari"],values$shocked_params_IS["g"],values$shocked_params_LM["p"],values$shocked_params_LM["ly"],values$shocked_params_LM["lr"],values$shocked_params_LM["Ms"])
+                # values$new_eq$y = unname((values$shocked_params_IS["ir"]*values$shocked_params_IS["r"]+values$shocked_params_IS["cpi"]+values$shocked_params_IS["bari"]+values$shocked_params_IS["g"])/(1-values$shocked_params_IS["alpha"]-values$shocked_params_IS["iy"]))
+                values$new_eq = compute_equilibrium(values$shocked_params_IS["alpha"],values$shocked_params_IS["iy"],values$shocked_params_IS["ir"],values$shocked_params_IS["cpi"],values$shocked_params_IS["bari"],values$shocked_params_IS["g"],values$shocked_params_LM["p"]/100,values$shocked_params_LM["ly"],values$shocked_params_LM["lr"],values$shocked_params_LM["Ms"])
             }
         }
     })
@@ -297,7 +306,7 @@ server <- function(session, input, output) {
             }
         }
     })
-    
+
     output$FFD_IS_plot <- renderPlotly({
         fig1 = fortyFivePlot(input,output,values)
         fig2 = ISPlot(input,output,values)
@@ -308,10 +317,10 @@ server <- function(session, input, output) {
     output$RM_LM_plot <- renderPlotly({
         fig1 = RMPlot(input,output,values)
         fig2 = LMPlot(input,output,values)
-        fig = subplot(fig1,fig2,shareX = TRUE,titleY = TRUE)
+        fig = subplot(fig1,fig2,shareY = TRUE,titleX = TRUE)
         fig
     })
-
+    
     output$real_econ <- renderPlotly({
         fig1 = fortyFivePlot(input,output,values)
         fig2 = laborMarketPlot(input,output,values)
@@ -466,6 +475,11 @@ server <- function(session, input, output) {
                        )
                    )
             )
+    })
+    
+    output$eq_islm <- renderPlotly({
+        fig = ISLMPlot(input,output,values)
+        fig
     })
 }
 
