@@ -139,6 +139,7 @@ server <- function(session, input, output) {
     values$shocked_params_LM = values$params_LM
     
     values$eq$y = (input$ir*input$r0+input$cpi+input$id*input$D/values$p+input$bari+input$g)/(1-input$alpha-input$iy)
+    values$eq$r = input$r0
     })
 
   observeEvent({

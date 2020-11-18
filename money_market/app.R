@@ -102,6 +102,7 @@ server <- function(session, input, output) {
                           "ystar" = input$ystar,
                           "Ms" = input$Ms)
         
+        values$eq$y = input$ystar
         values$eq$r = unname(1/input$lr*(input$Ms/input$p-input$ly*input$ystar))
     })
     

@@ -5,7 +5,7 @@ fortyFivePlot <- function(input, output,values){
 
     fig = fig %>% add_trace(y = prod, type = "scatter", mode = "lines", name = "$$Y^d=y$$", color = I("blue"),
       hovertemplate = "y=yd=%{y:.0f}<extra></extra>")
-    fig = fig %>% add_trace(y = (input$alpha + input$iy) * prod + input$id*input$D/values$p + input$ir*input$r0 + input$cpi + input$bari + input$g, type = "scatter", mode = "lines", name = "$$Y_1^d$$", color = I("red"),
+    fig = fig %>% add_trace(y = (input$alpha + input$iy) * prod + input$id*input$D/values$p + input$ir*values$eq$r + input$cpi + input$bari + input$g, type = "scatter", mode = "lines", name = "$$Y_1^d$$", color = I("red"),
       hovertemplate = paste("y=%{x:.0f}","<br>yd=%{y:.0f}","<extra></extra>"))
     if(values$eq$y > 0){
       fig = fig %>% add_segments(0,values$eq$y,values$eq$y,values$eq$y, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE,
@@ -76,9 +76,9 @@ ISPlot <- function(input,output,values){
   fig = fig %>% add_trace(y = ((1-input$alpha-input$iy)*prod-input$cpi-input$id*input$D/values$p -input$bari-input$g)/input$ir, type = "scatter", mode = "lines", name = "$$IS_1$$", color = I("red"),
                             hovertemplate = paste("y=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>"))
   if(values$eq$y > 0){
-    fig = fig %>% add_segments(0,input$r0,values$eq$y,input$r0, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE,
+    fig = fig %>% add_segments(0,values$eq$r,values$eq$y,values$eq$r, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE,
                                  hovertemplate = paste("y=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>")) 
-    fig = fig %>% add_segments(values$eq$y,input$r0,values$eq$y,0, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE,
+    fig = fig %>% add_segments(values$eq$y,values$eq$r,values$eq$y,0, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE,
                                  hovertemplate = paste("y=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>"))
   }
   if(values$shock & !is.na(input$new_value_IS)){      
@@ -99,7 +99,7 @@ ISPlot <- function(input,output,values){
   } else if(values$eq$y > 0){
     is_eq = list(
       x = values$eq$y,
-      y = input$r0,
+      y = values$eq$r,
       text = paste0("y*=",round(values$eq$y))
     )
     fig = fig %>% layout(annotations = is_eq)
@@ -131,7 +131,7 @@ IeqSPlot <- function(input,output,values){
     fig = plot_ly(to_plot, x = ~revenu)
     fig = fig %>% add_trace(y = (1-input$alpha)*prod-input$cpi, type = "scatter", mode = "lines", name = "$$S_1(y)$$", line = list(color = "#00b70c"),
                               hovertemplate = paste("y=%{x:.0f}","<br>S=%{y:.0f}","<extra></extra>"))
-    fig = fig %>% add_trace(y = input$iy*prod+input$id*input$D/values$p+input$ir*input$r0+input$bari+input$g, type = "scatter", mode = "lines", name = "$$I_1(y,r_0)$$", line = list(color = "#ab3bf2"),
+    fig = fig %>% add_trace(y = input$iy*prod+input$id*input$D/values$p+input$ir*values$eq$r+input$bari+input$g, type = "scatter", mode = "lines", name = "$$I_1(y,r_0)$$", line = list(color = "#ab3bf2"),
                               hovertemplate = paste("y=%{x:.0f}","<br>I=%{y:.0f}","<extra></extra>"))
     if(invEpEq > 0){
       fig = fig %>% add_segments(0,invEpEq,values$eq$y,invEpEq, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE,
