@@ -1,15 +1,20 @@
-choicesIS = c("alpha","iy","ir","cpi","bari","g")
+choicesGlob = c("p")
+choicesNamesGlob = c("\\\\p")
+choicesGlob <- setNames(choicesGlob, choicesNamesGlob)
+
+choicesIS = c("alpha","iy","ir","cpi","bari","g","t","id")
 choicesNamesIS = c("\\\\\\alpha",
                    "\\\\I_y",
                    "\\\\I_r",
                    "\\\\C_{\\pi}",
                    "\\\\\\bar{I}",
-                   "\\\\g")
+                   "\\\\g",
+                   "\\\\t",
+                   "\\\\I_d")
 choicesIS <- setNames(choicesIS, choicesNamesIS)
 
-choicesLM = c("p","ly","lr","ystar","Ms")
-choicesNamesLM = c("\\\\p",
-                   "\\\\L_y",
+choicesLM = c("ly","lr","ystar","Ms")
+choicesNamesLM = c("\\\\L_y",
                    "\\\\L_r",
                    "\\\\y*",
                    "\\\\M^s")
@@ -46,48 +51,57 @@ LM_shock <- selectizeInput("shocked_var_LM","Variable choquée (LM):",
                                           }"))
 )
 
-ui_LM_params1 <- fluidRow(
+glob_params <- fluidRow(
   column(4,
          numericInput("p","\\(p\\)",0,1000,value = 100,step=1)
-  ),
-  column(4,
-         numericInput("ly","\\(L_y\\)",0,1,value = 0.5,step=0.05)
-  ),
-  column(4,
-         numericInput("lr","\\(L_r\\)",-1000,0,value = -100,step=10)
   )
 )
 
-ui_LM_params2 <- fluidRow(
-  column(4,
+ui_LM_params1 <- fluidRow(
+  column(3,
+         numericInput("ly","\\(L_y\\)",0,1,value = 0.5,step=0.05)
+  ),
+  column(3,
+         numericInput("lr","\\(L_r\\)",-1000,0,value = -100,step=10)
+  ),
+  column(3,
          numericInput("Ms","\\(M^s\\)", 0,4000,value=300,step = 100)       
   ),
-  column(4,
+  column(3,
          numericInput("rmin", "\\(r_{min}\\)", 0,5,value=1,step=0.5)
   )
 )
 
 ui_IS_params1 <- fluidRow(
-  column(4,
+  column(3,
          numericInput("alpha","\\(\\alpha\\)",0,1,value = 0.6,step=0.05)
   ),
-  column(4,
+  column(3,
          numericInput("iy","\\(I_y\\)",0,1,value = 0.05,step=0.05)
   ),
-  column(4,
+  column(3,
          numericInput("ir","\\(I_r\\)",-1000,1000,value = -100,step=10)
+  ),
+  column(3,
+         numericInput("id","\\(I_D\\)",-1000,1000,value = -0.1,step=0.01)
   )
 ) 
 
 ui_IS_params2 <- fluidRow(
-  column(4,
-         numericInput("cpi","\\(C_{\\pi}\\)",0,1000,value = 200,step=10)
+  column(3,
+         numericInput("cpi","\\(C_{\\pi}\\)",0,1000,value = 500,step=10)
   ),
-  column(4,
-         numericInput("bari","\\(\\bar{I}\\)",0,1000,value = 350,step=10)
+  column(3,
+         numericInput("bari","\\(\\bar{I}\\)",0,1000,value = 400,step=10)
   ),
-  column(4,
+  column(3,
          numericInput("g","\\(g\\)",0,1000,value = 350,step=10)
+  ),
+  column(3,
+         numericInput("t","\\(t\\)",0,1000,value = 0,step=10)
+  ),
+  column(3, class = "collapse",
+         numericInput("D","\\(D\\)",0,1000,value = 2000,step=10)
   )
 )
 

@@ -29,8 +29,10 @@ ui <- fluidPage(
         fluidRow(
             column(3,
                    div(id = "settings",
+                       h4("Paramètres globaux"),
+                       glob_params,
+                       h4("Paramètres LM"),
                        ui_LM_params1,
-                       ui_LM_params2,
                        fluidRow(
                            column(4,
                                   numericInput("ystar","\\(y*\\)",0,10000,value = 2000, step=10)
@@ -82,7 +84,7 @@ server <- function(session, input, output) {
     values <- reactiveValues(
         shock = F,
         params = c(),
-        shocked_params = c(),
+        shocked_params_LM = c(),
         eq = list()
     )
     
@@ -93,12 +95,14 @@ server <- function(session, input, output) {
         input$ystar
         input$Ms
     },{
-        values$params = c("p" = input$p,
+        values$p = input$p/100
+        values$params = c("p" = values$p,
                           "ly" = input$ly,
                           "lr" = input$lr,
                           "ystar" = input$ystar,
                           "Ms" = input$Ms)
         
+        values$eq$y = input$ystar
         values$eq$r = unname(1/input$lr*(input$Ms/input$p-input$ly*input$ystar))
     })
     
@@ -119,10 +123,10 @@ server <- function(session, input, output) {
         input$new_value_LM
     },{
         if(values$shock){
-            values$shocked_params = values$params
+            values$shocked_params_LM = values$params
             if(!is.na(input$new_value_LM)){
-                values$shocked_params[input$shocked_var_LM] = input$new_value_LM
-                values$new_eq$r = unname(1/values$shocked_params["lr"]*(values$shocked_params["Ms"]/values$shocked_params["p"]-values$shocked_params["ly"]*values$shocked_params["ystar"]))
+                values$shocked_params_LM[input$shocked_var_LM] = input$new_value_LM
+                values$new_eq$r = unname(1/values$shocked_params_LM["lr"]*(values$shocked_params_LM["Ms"]/values$shocked_params_LM["p"]-values$shocked_params_LM["ly"]*values$shocked_params_LM["ystar"]))
             }
         }
     })
