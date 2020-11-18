@@ -1,10 +1,11 @@
-choicesIS = c("alpha","iy","ir","cpi","bari","g")
+choicesIS = c("alpha","iy","ir","cpi","bari","g","t")
 choicesNamesIS = c("\\\\\\alpha",
                    "\\\\I_y",
                    "\\\\I_r",
                    "\\\\C_{\\pi}",
                    "\\\\\\bar{I}",
-                   "\\\\g")
+                   "\\\\g",
+                   "\\\\t")
 choicesIS <- setNames(choicesIS, choicesNamesIS)
 
 choicesLM = c("p","ly","lr","ystar","Ms")
@@ -80,13 +81,16 @@ ui_IS_params1 <- fluidRow(
 ) 
 
 ui_IS_params2 <- fluidRow(
-  column(4,
+  column(3,
          numericInput("cpi","\\(C_{\\pi}\\)",0,1000,value = 200,step=10)
   ),
-  column(4,
+  column(3,
          numericInput("bari","\\(\\bar{I}\\)",0,1000,value = 350,step=10)
   ),
-  column(4,
+  column(3,
          numericInput("g","\\(g\\)",0,1000,value = 350,step=10)
+  ),
+  column(3,
+         numericInput("t","\\(t\\)",0,1000,value = 0,step=10)
   )
 )
