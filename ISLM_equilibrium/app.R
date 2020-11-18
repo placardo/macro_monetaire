@@ -68,34 +68,42 @@ ui <- fluidPage(
                                )
                            )
                        )
-                   ),
-                   div(id = "model",
-                       h4("Équation de demande de biens:"),
-                       helpText(class = "math",
-                                "$$Y^d = (\\alpha + I_y) \\cdot y + I_r \\cdot r + C_{\\pi} + \\bar{I} + g$$"
-                       ),
-                       h4("Équation de demande de monnaie:"),
-                       helpText(class = "math",
-                                "$$\\bar{M} = p(L_y \\cdot y + L_r \\cdot r)$$"
-                       ),
-                       h4("Système à deux équations et deux inconnues"),
-                       helpText(class = "math",
-                                "$$(1-\\alpha-I_y) \\cdot y + I_r \\cdot r = C_{\\pi} + \\bar{I} + g$$"     
-                       ),
-                       helpText(class = "math",
-                                "$$L_y \\cdot y + L_r \\cdot r = \\frac{\\bar{M}}{p}$$"     
-                       ),
-                       h4("Solutions du système"),
-                       helpText(class = "math",
-                                "$$y* = \\frac{(C_{\\pi} + \\bar{I} + g)L_r+I_r \\frac{\\bar{M}}{p}}{L_r(1-\\alpha-I_y) + I_r L_y}$$"     
-                       ),
-                       helpText(class = "math",
-                                "$$r* = \\frac{\\frac{\\bar{M}}{p}(1-\\alpha-I_y) - L_y(C_{\\pi} + \\bar{I} + g)}{L_r(1-\\alpha-I_y) + I_r L_y}$$"     
-                       )
                    )
             ),
             column(9,
                    plotlyOutput("diagrammes", height =600)
+            )
+        ),
+        div(id = "model",
+            fluidRow(
+                column(4,
+                       h4("Équation de demande de biens:"),
+                       helpText(class = "math",
+                                "$$Y^d = (\\alpha + I_y) \\cdot y + I_{D} \\cdot \\frac{D}{p} + I_r \\cdot r + C_{\\pi} + \\bar{I} + g$$"
+                       ),
+                       h4("Équation de demande de monnaie:"),
+                       helpText(class = "math",
+                                "$$\\bar{M} = p(L_y \\cdot y + L_r \\cdot r)$$"
+                       )
+                ),
+                column(4,
+                       h4("Système à deux équations et deux inconnues"),
+                       helpText(class = "math",
+                                "$$(1-\\alpha-I_y) \\cdot y + I_r \\cdot r = C_{\\pi} + \\bar{I} + g + I_{D} \\cdot \\frac{D}{p}$$"     
+                       ),
+                       helpText(class = "math",
+                                "$$L_y \\cdot y + L_r \\cdot r = \\frac{\\bar{M}}{p}$$"     
+                       )
+                ),
+                column(4,
+                       h4("Solutions du système"),
+                       helpText(class = "math",
+                                "$$y* = \\frac{(C_{\\pi} + \\bar{I} + g + I_{D} \\cdot \\frac{D}{p})L_r+I_r \\frac{\\bar{M}}{p}}{L_r(1-\\alpha-I_y) + I_r L_y}$$"     
+                       ),
+                       helpText(class = "math",
+                                "$$r* = \\frac{\\frac{\\bar{M}}{p}(1-\\alpha-I_y) - L_y(C_{\\pi} + \\bar{I} + g + I_{D} \\cdot \\frac{D}{p})}{L_r(1-\\alpha-I_y) + I_r L_y}$$"     
+                       )
+                )
             )
         )
     )

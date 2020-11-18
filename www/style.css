@@ -5,11 +5,18 @@ padding: 5px;
 padding-bottom: 0;
 margin-bottom: 20px;
 }
+#model > .row{
+  margin-right: 0;
+  margin-left: 0;
+}
 .MathJax_Display{
 color: black;
 }
 h5{
 color: black;
+}
+h4{
+  text-decoration: underline;
 }
 #shock_set > .row{
 position:relative;

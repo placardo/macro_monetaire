@@ -79,20 +79,6 @@ ui <- fluidPage(
                           )
                        )
                    )
-               ),
-               div(id = "model",
-                   h4("Équation de demande:"),
-                   helpText(class = "math",
-                            "$$Y^d = (\\alpha + I_y) \\cdot y + I_r \\cdot r_0 + C_{\\pi} + \\bar{I} + g$$"
-                   ),
-                   h4("Niveau d'équilibre du revenu:"),
-                   helpText(class = "math",
-                              "$$y* = \\frac{I_r \\cdot r_0 + C_{\\pi} + \\bar{I} + g}{1-\\alpha - I_y}$$"
-                   ),
-                   h4("Équation de IS:"),
-                   helpText(class = "math",
-                            "$$r = \\frac{(1-\\alpha - I_y) \\cdot y - C_{\\pi}-\\bar{I} -g}{I_r}$$"
-                   )
                )
         ),
         column(9,
@@ -105,7 +91,30 @@ ui <- fluidPage(
                )
             )
           )
+        ),
+      br(),
+      div(id = "model",
+        fluidRow(
+          column(5,
+            h4("Équation de demande:"),
+            helpText(class = "math",
+                     "$$Y^d = (\\alpha + I_y) \\cdot y + I_{D/p} \\cdot \\frac{D}{p} + I_r \\cdot r_0 + C_{\\pi} + \\bar{I} + g$$"
+            )
+          ),
+          column(4,
+            h4("Niveau d'équilibre du revenu:"),
+            helpText(class = "math",
+                     "$$y* = \\frac{I_r \\cdot r_0 + C_{\\pi} + \\bar{I} + g}{1-\\alpha - I_y}$$"
+            )
+          ),
+          column(3,
+            h4("Équation de IS:"),
+            helpText(class = "math",
+                     "$$r = \\frac{(1-\\alpha - I_y) \\cdot y - C_{\\pi}-\\bar{I} -g}{I_r}$$"
+            )
+          )
         )
+      )
     )
 )
 
