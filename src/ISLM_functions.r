@@ -4,8 +4,8 @@ ISLMPlot <- function(input,output,values){
   fig = plot_ly(to_plot, x = ~revenu)
   
   fig = plot_ly(to_plot, x = ~revenu)
-  fig = fig %>% add_trace(y = ((1-input$alpha-input$iy)*prod+input$alpha*input$t-input$cpi-input$bari-input$g)/input$ir, type = "scatter", mode = "lines", name = "$$IS_1$$", line = list(color = "#ff0000"))
-  fig = fig %>% add_trace(y = lm_curve(input$lr, input$Ms, input$p, input$ly, prod, input$rmin), type = "scatter", mode = "lines", name = "$$LM_1$$", line = list(color = "#007bff"))
+  fig = fig %>% add_trace(y = ((1-input$alpha-input$iy)*prod+input$alpha*input$t - input$id*input$D/values$p -input$cpi-input$bari-input$g)/input$ir, type = "scatter", mode = "lines", name = "$$IS_1$$", line = list(color = "#ff0000"))
+  fig = fig %>% add_trace(y = lm_curve(input$lr, input$Ms, values$p, input$ly, prod, input$rmin), type = "scatter", mode = "lines", name = "$$LM_1$$", line = list(color = "#007bff"))
   
   fig = fig %>% add_segments(0,values$eq$r,values$eq$y,values$eq$r, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE) 
   fig = fig %>% add_segments(values$eq$y,0,values$eq$y,values$eq$r, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE)
@@ -47,7 +47,8 @@ ISLMPlot <- function(input,output,values){
   )
   interest <- list(
     title = "Taux d'intérêt, r",
-    titlefont = f
+    titlefont = f,
+    range = c(0,10)
   )
   fig = fig %>% layout(xaxis = revenu, yaxis = interest)
   return(fig)

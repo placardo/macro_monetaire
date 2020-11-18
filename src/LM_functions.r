@@ -13,7 +13,7 @@ RMPlot <- function(input,output,values){
     
     fig = fig %>% add_segments(x = input$Ms, y = 0, xend = input$Ms, yend = 15, type = "scatter", mode = "lines", name = "$$M = M^s$$", color = I("blue"),
                                  hovertemplate = paste("Ms=%{x:.0f}","<extra></extra>"))
-    fig = fig %>% add_trace(y = lm_curve(input$lr, masse,input$p,input$ly,input$ystar, input$rmin), type = "scatter", mode = "lines", name = "$$M^d$$", color = I("red"),
+    fig = fig %>% add_trace(y = lm_curve(input$lr, masse,values$p,input$ly,input$ystar, input$rmin), type = "scatter", mode = "lines", name = "$$M^d$$", color = I("red"),
                               hovertemplate = paste("Ms=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>"))
     fig = fig %>% add_segments(x = 0, y = values$eq$r, xend = input$Mmax, yend = values$eq$r, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE,
                                  hovertemplate = paste("Ms=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>"))
@@ -67,7 +67,7 @@ LMPlot <- function(input,output,values){
   to_plot = data.frame(money = masse, revenu = prod)
   
   fig = plot_ly(to_plot, x = ~revenu)
-  fig = fig %>% add_trace(y = lm_curve(input$lr, input$Ms, input$p, input$ly, prod, input$rmin), type = "scatter", mode = "lines", name = "$$LM_1$$", color = I("red"),
+  fig = fig %>% add_trace(y = lm_curve(input$lr, input$Ms, values$p, input$ly, prod, input$rmin), type = "scatter", mode = "lines", name = "$$LM_1$$", color = I("red"),
                             hovertemplate = paste("y=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>"))
   fig = fig %>% add_segments(0,values$eq$r,input$ystar,values$eq$r, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE,
                                hovertemplate = paste("y=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>"))

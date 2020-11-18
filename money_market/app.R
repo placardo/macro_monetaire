@@ -29,8 +29,10 @@ ui <- fluidPage(
         fluidRow(
             column(3,
                    div(id = "settings",
+                       h4("Paramètres globaux"),
+                       glob_params,
+                       h4("Paramètres LM"),
                        ui_LM_params1,
-                       ui_LM_params2,
                        fluidRow(
                            column(4,
                                   numericInput("ystar","\\(y*\\)",0,10000,value = 2000, step=10)
@@ -93,7 +95,8 @@ server <- function(session, input, output) {
         input$ystar
         input$Ms
     },{
-        values$params = c("p" = input$p,
+        values$p = input$p/100
+        values$params = c("p" = values$p,
                           "ly" = input$ly,
                           "lr" = input$lr,
                           "ystar" = input$ystar,

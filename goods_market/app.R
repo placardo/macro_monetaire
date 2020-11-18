@@ -29,28 +29,11 @@ ui <- fluidPage(
       fluidRow(
         column(3,
                div(id = "settings",
-                   fluidRow(
-                     column(4,
-                        numericInput("alpha","\\(\\alpha\\)",0,1,value = 0.6,step=0.05)
-                     ),
-                     column(4,
-                      numericInput("iy","\\(I_y\\)",0,1,value = 0.05,step=0.05)
-                     ),
-                     column(4,
-                      numericInput("ir","\\(I_r\\)",-1000,1000,value = -100,step=10)
-                     )
-                   ),
-                   fluidRow(
-                     column(4,
-                      numericInput("cpi","\\(C_{\\pi}\\)",0,1000,value = 200,step=10)
-                     ),
-                     column(4,
-                      numericInput("bari","\\(\\bar{I}\\)",0,1000,value = 350,step=10)
-                     ),
-                     column(4,
-                      numericInput("g","\\(g\\)",0,1000,value = 350,step=10)
-                     )
-                   ),
+                   h4("Paramètres globaux"),
+                   glob_params,
+                   h4("Paramètres de IS"),
+                   ui_IS_params1,
+                   ui_IS_params2,
                    fluidRow(
                      column(6,
                       numericInput("r0","\\(r_0\\)",0,10,value = 4.676471, step=1)
@@ -129,22 +112,35 @@ server <- function(session, input, output) {
     input$alpha
     input$iy
     input$ir
+    input$id
     input$cpi
     input$bari
     input$g
     input$r0
+    input$p
   },{
-    values$params = c("alpha" = input$alpha,
-                      "iy" = input$iy,
-                      "ir" = input$ir,
-                      "r" = input$r0,
-                      "cpi" = input$cpi,
-                      "bari" = input$bari,
-                      "g" = input$g)
-    
-    values$eq$y = (input$ir*input$r0+input$cpi+input$bari+input$g)/(1-input$alpha-input$iy)
-    })
+    values$p = input$p/100
   
+    values$params_IS = c("alpha" = input$alpha,
+                         "iy" = input$iy,
+                         "ir" = input$ir,
+                         "id" = input$id,
+                         "cpi" = input$cpi,
+                         "bari" = input$bari,
+                         "g" = input$g,
+                         "t" = input$t)
+    
+    values$params_LM = c("p" = values$p,
+                         "ly" = input$ly,
+                         "lr" = input$lr,
+                         "Ms" = input$Ms)
+    
+    values$shocked_params_IS = values$params_IS
+    values$shocked_params_LM = values$params_LM
+    
+    values$eq$y = (input$ir*input$r0+input$cpi+input$id*input$D/values$p+input$bari+input$g)/(1-input$alpha-input$iy)
+    })
+
   observeEvent({
     input$shock
   },{

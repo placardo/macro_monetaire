@@ -30,12 +30,13 @@ ui <- fluidPage(
         fluidRow(
             column(3,
                    div(id = "settings",
+                       h4("Paramètres globaux"),
+                       glob_params,
                        h4("Paramètres de IS"),
                        ui_IS_params1,
                        ui_IS_params2,
                        h4("Paramètres de LM"),
                        ui_LM_params1,
-                       ui_LM_params2,
                        h4("Paramètres des graphs"),
                        fluidRow(
                            column(6,
@@ -118,17 +119,18 @@ server <- function(session, input, output) {
         shocked_params_LM = c()
     )
     
-    compute_equilibrium <- function(alpha,iy,ir,cpi,bari,g,t,p,ly,lr,Ms){
+    compute_equilibrium <- function(alpha,iy,ir,id,cpi,bari,g,t,D,p,ly,lr,Ms){
         denom = lr*(1-alpha-iy) + ir*ly
-        eq_y = ((cpi+bari-alpha*t+g)*lr+ir*Ms/p)/denom
-        eq_r = (Ms/p*(1-alpha-iy)-ly*(cpi+bari-alpha*t+g))/denom
+        eq_y = ((cpi+bari-alpha*t+g+id*D/p)*lr+ir*Ms/p)/denom
+        eq_r = (Ms/p*(1-alpha-iy)-ly*(cpi+bari-alpha*t+g+id*D/p))/denom
         return(list(y = unname(eq_y), r = unname(eq_r)))
     }
-    
+        
     observeEvent({
         input$alpha
         input$iy
         input$ir
+        input$id
         input$cpi
         input$bari
         input$g
@@ -138,6 +140,8 @@ server <- function(session, input, output) {
         input$lr
         input$Ms
     },{
+        values$p = input$p/100
+
         values$params_IS = c("alpha" = input$alpha,
                           "iy" = input$iy,
                           "ir" = input$ir,
@@ -146,7 +150,7 @@ server <- function(session, input, output) {
                           "g" = input$g,
                           "t" = input$t)
         
-        values$params_LM = c("p" = input$p,
+        values$params_LM = c("p" = values$p,
                           "ly" = input$ly,
                           "lr" = input$lr,
                           "Ms" = input$Ms)
@@ -154,7 +158,7 @@ server <- function(session, input, output) {
         values$shocked_params_IS = values$params_IS
         values$shocked_params_LM = values$params_LM
         
-        values$eq = compute_equilibrium(input$alpha,input$iy,input$ir,input$cpi,input$bari,input$g,input$t,input$p,input$ly,input$lr,input$Ms)
+        values$eq = compute_equilibrium(input$alpha,input$iy,input$ir,input$id,input$cpi,input$bari,input$g,input$t,input$D,values$p,input$ly,input$lr,input$Ms)
     })
     
     observeEvent({
@@ -178,7 +182,7 @@ server <- function(session, input, output) {
             values$shocked_params_IS = values$params_IS
             if(!is.na(input$new_value_IS)){
                 values$shocked_params_IS[input$shocked_var_IS] = input$new_value_IS
-                values$new_eq = compute_equilibrium(values$shocked_params_IS["alpha"],values$shocked_params_IS["iy"],values$shocked_params_IS["ir"],values$shocked_params_IS["cpi"],values$shocked_params_IS["bari"],values$shocked_params_IS["g"],values$shocked_params_IS["t"],values$shocked_params_LM["p"],values$shocked_params_LM["ly"],values$shocked_params_LM["lr"],values$shocked_params_LM["Ms"])
+                values$new_eq = compute_equilibrium(values$shocked_params_IS["alpha"],values$shocked_params_IS["iy"],values$shocked_params_IS["ir"],values$shocked_params_IS["id"],values$shocked_params_IS["cpi"],values$shocked_params_IS["bari"],values$shocked_params_IS["g"],values$shocked_params_IS["t"],input$D,values$shocked_params_LM["p"],values$shocked_params_LM["ly"],values$shocked_params_LM["lr"],values$shocked_params_LM["Ms"])
             }
         }
     })
@@ -192,7 +196,7 @@ server <- function(session, input, output) {
             values$shocked_params_LM = values$params_LM
             if(!is.na(input$new_value_LM)){
                 values$shocked_params_LM[input$shocked_var_LM] = input$new_value_LM
-                values$new_eq = compute_equilibrium(values$shocked_params_IS["alpha"],values$shocked_params_IS["iy"],values$shocked_params_IS["ir"],values$shocked_params_IS["cpi"],values$shocked_params_IS["bari"],values$shocked_params_IS["g"],values$shocked_params_IS["t"],values$shocked_params_LM["p"],values$shocked_params_LM["ly"],values$shocked_params_LM["lr"],values$shocked_params_LM["Ms"])
+                values$new_eq = compute_equilibrium(values$shocked_params_IS["alpha"],values$shocked_params_IS["iy"],values$shocked_params_IS["ir"],values$shocked_params_IS["id"],values$shocked_params_IS["cpi"],values$shocked_params_IS["bari"],values$shocked_params_IS["g"],values$shocked_params_IS["t"],input$D,values$shocked_params_LM["p"],values$shocked_params_LM["ly"],values$shocked_params_LM["lr"],values$shocked_params_LM["Ms"])
             }
         }
     })
