@@ -4,6 +4,7 @@ ISLMPlot <- function(input,output,values){
   fig = plot_ly(to_plot, x = ~revenu)
   
   fig = plot_ly(to_plot, x = ~revenu)
+
   fig = fig %>% add_trace(y = ((1-input$alpha-input$iy)*prod+input$alpha*input$t - input$id*input$D/values$p -input$cpi-input$bari-input$g)/input$ir, type = "scatter", mode = "lines", name = "$$IS_1$$", line = list(color = "#ff0000"))
   fig = fig %>% add_trace(y = lm_curve(input$lr, input$Ms, values$p, input$ly, prod, input$rmin), type = "scatter", mode = "lines", name = "$$LM_1$$", line = list(color = "#007bff"))
   
@@ -12,6 +13,7 @@ ISLMPlot <- function(input,output,values){
   
   if(values$shock & (!is.na(input$new_value_LM) || !is.na(input$new_value_IS))){
     if(!is.na(input$new_value_IS)){
+
       browser()
       fig = fig %>% add_trace(y = ((1-values$shocked_params_IS["alpha"]-values$shocked_params_IS["iy"])*prod+values$shocked_params_IS["alpha"]*values$shocked_params_IS["t"]-values$shocked_params_IS["cpi"]-values$shocked_params_IS["bari"]-values$shocked_params_IS["g"])/values$shocked_params_IS["ir"], type = "scatter", mode = "lines", name = "$$IS_2$$", line = list(color = "#aa0000"))
     }

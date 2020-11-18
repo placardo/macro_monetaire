@@ -13,6 +13,7 @@ fortyFivePlot <- function(input, output,values){
       fig = fig %>% add_segments(values$eq$y,0,values$eq$y,values$eq$y, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE,
         hovertemplate = paste("y=%{x:.0f}","<br>yd=%{y:.0f}","<extra></extra>"))
     }
+    # fig = fig %>% add_trace(x = values$POTY, y = values$POTY, mode = "markers", marker = list(color = "red"), showlegend = F)
     
     if(values$shock & !is.na(input$new_value_IS)){
       fig = fig %>% add_trace(y = (values$shocked_params_IS["alpha"] + values$shocked_params_IS["iy"]) * prod + values$shocked_params_IS["id"]*input$D/values$shocked_params_LM["p"] + values$shocked_params_IS["ir"]*values$shocked_params_IS["r"] + values$shocked_params_IS["cpi"] + values$shocked_params_IS["bari"] + values$shocked_params_IS["g"], type = "scatter", mode = "lines", name = "$$Y_2^d$$", color = "rgb(0,200,20)",
@@ -73,6 +74,7 @@ ISPlot <- function(input,output,values){
   to_plot = data.frame(revenu = prod)
   
   fig = plot_ly(to_plot, x = ~revenu)
+
   fig = fig %>% add_trace(y = ((1-input$alpha-input$iy)*prod-input$cpi-input$id*input$D/values$p -input$bari-input$g)/input$ir, type = "scatter", mode = "lines", name = "$$IS_1$$", color = I("red"),
                             hovertemplate = paste("y=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>"))
   if(values$eq$y > 0){

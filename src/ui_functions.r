@@ -104,3 +104,24 @@ ui_IS_params2 <- fluidRow(
          numericInput("D","\\(D\\)",0,1000,value = 2000,step=10)
   )
 )
+
+ui_BB_params <- fluidRow(
+  column(4,
+         numericInput("by","\\(B_y\\)",0,1,value = 0.05,step = 0.05)
+  ),
+  column(4,
+         numericInput("br","\\(B_r\\)",0,10,value = 1)
+  ),
+  column(4,
+         numericInput("max_price","Val. Faciale",0,1,value = 100)
+  )
+)
+
+ui_LabM_params <- fluidRow(
+  column(4,
+        numericInput("W","\\(\\bar{W}\\)",0,100,value = 40,step=0.5)
+  ),
+  column(4,
+         numericInput("sal_res","Sal. réserve",0,100,value = 6)
+  )
+)

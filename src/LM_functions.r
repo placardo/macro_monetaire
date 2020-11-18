@@ -24,8 +24,8 @@ RMPlot <- function(input,output,values){
                                      hovertemplate = paste("Ms=%{x:.0f}","<extra></extra>"))
         fig = fig %>% add_segments(x = 0, y = values$new_eq$r, xend = input$Mmax, yend = values$new_eq$r, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE,
                                      hovertemplate = paste("Ms=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>"))
-      } else{
-        fig = fig %>% add_trace(y = lm_curve(values$shocked_params_LM["lr"],masse,values$shocked_params_LM["p"],values$shocked_params_LM["ly"],values$shocked_params_LM["ystar"],input$rmin), type = "scatter", mode = "lines", name = "$$M^d$$", color = "rgb(0,200,20)",
+      } else if(input$shocked_var_LM != "Ms"){
+        fig = fig %>% add_trace(y = lm_curve(values$shocked_params_LM["lr"],masse,values$shocked_params_LM["p"]/100,values$shocked_params_LM["ly"],values$shocked_params_LM["ystar"],input$rmin), type = "scatter", mode = "lines", name = "$$M^d$$", color = "rgb(0,200,20)",
                                   hovertemplate = paste("Ms=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>"))
         fig = fig %>% add_segments(x = 0, y = values$new_eq$r, xend = input$Mmax, yend = values$new_eq$r, line = list(color = 'rgb(200, 0, 0)', width = 1, dash = 'dash'), showlegend = FALSE,
                                      hovertemplate = paste("Ms=%{x:.0f}","<br>r=%{y:.2f}","<extra></extra>"))
@@ -51,7 +51,7 @@ RMPlot <- function(input,output,values){
       color = "#7f7f7f"
     )
     money <- list(
-      title = "Masse monétaire, M",
+      title = "Masse monétaire réelle, M/p",
       titlefont = f
     )
     interest <- list(
