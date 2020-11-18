@@ -37,42 +37,28 @@ ui <- fluidPage(
                        ui_IS_params2,
                        h4("Paramètres de LM"),
                        ui_LM_params1,
-                       h4("Paramètres des graphs"),
-                       fluidRow(
-                           column(6,
-                                  sliderInput("ymax","y max", 100,10000,2500,step = 100)          
-                           )#,
-                           # column(6,
-                           #        sliderInput("Mmax","M max", 100,4000,2000,step = 100)       
-                           # )
-                       ),
+                       # h4("Paramètres des graphs"),
+                       # fluidRow(
+                       #     column(6,
+                       #            sliderInput("ymax","y max", 100,10000,2500,step = 100)          
+                       #     )#,
+                       #     # column(6,
+                       #     #        sliderInput("Mmax","M max", 100,4000,2000,step = 100)       
+                       #     # )
+                       # ),
                        fluidRow(
                            column(4,
-                                  actionButton("shock", "Ajouter un choc", `data-toggle`="collapse", `data-target`="#shock_set", style = "margin-bottom: 15px;")
+                                  actionButton("shock", "Ajouter des chocs", `data-toggle`="collapse", `data-target`="#shock_set", style = "margin-bottom: 15px;")
                            )
                        ),
                        div(id = "shock_set", class = "collapse",
-                           fluidRow(
-                               column(5,
-                                      IS_shock
-                               ),
-                               column(5,
-                                      LM_shock
-                               )
-                           ),
-                           fluidRow(
-                               column(5,
-                                      numericInput("new_value_IS","Nouvelle Valeur", value = NULL)
-                               ),
-                               column(5,
-                                      numericInput("new_value_LM","Nouvelle Valeur", value = NULL)
-                               )
-                           )
+                           shock_params(c(choicesGlob, choicesIS, choicesLM),1),
+                           shock_params(c(choicesGlob, choicesIS, choicesLM),2)
                        )
                    )
             ),
             column(9,
-                   plotlyOutput("diagrammes", height =600)
+                   plotlyOutput("islm", height = 600)
             )
         ),
         div(id = "model",
@@ -80,7 +66,7 @@ ui <- fluidPage(
                 column(4,
                        h4("Équation de demande de biens:"),
                        helpText(class = "math",
-                                "$$Y^d = (\\alpha + I_y) \\cdot y + I_{D} \\cdot \\frac{D}{p} + I_r \\cdot r + C_{\\pi} + \\bar{I} + g$$"
+                                "$$Y^d = \\alpha \\cdot (y-t) + C_{\\pi} + I_y \\cdot y + I_{D} \\cdot \\frac{D}{p} + I_r \\cdot r + \\bar{I} + g$$"
                        ),
                        h4("Équation de demande de monnaie:"),
                        helpText(class = "math",
@@ -90,19 +76,19 @@ ui <- fluidPage(
                 column(4,
                        h4("Système à deux équations et deux inconnues"),
                        helpText(class = "math",
-                                "$$(1-\\alpha-I_y) \\cdot y + I_r \\cdot r = C_{\\pi} + \\bar{I} + g + I_{D} \\cdot \\frac{D}{p}$$"     
-                       ),
-                       helpText(class = "math",
-                                "$$L_y \\cdot y + L_r \\cdot r = \\frac{\\bar{M}}{p}$$"     
+                                "$$\\begin{align}
+                                (1-\\alpha-I_y) \\cdot y - I_r \\cdot r &= -\\alpha t + C_{\\pi} + I_{D} \\cdot \\frac{D}{p} + \\bar{I} + g\\\\
+                                L_y \\cdot y + L_r \\cdot r &= \\frac{\\bar{M}}{p}
+                                \\end{align}$$"     
                        )
                 ),
                 column(4,
                        h4("Solutions du système"),
                        helpText(class = "math",
-                                "$$y* = \\frac{(C_{\\pi} + \\bar{I} + g + I_{D} \\cdot \\frac{D}{p})L_r+I_r \\frac{\\bar{M}}{p}}{L_r(1-\\alpha-I_y) + I_r L_y}$$"     
+                                "$$y* = \\frac{(-\\alpha t + C_{\\pi} + I_{D} \\cdot \\frac{D}{p} + \\bar{I} + g)L_r+I_r \\frac{\\bar{M}}{p}}{L_r(1-\\alpha-I_y) + I_r L_y}$$"     
                        ),
                        helpText(class = "math",
-                                "$$r* = \\frac{\\frac{\\bar{M}}{p}(1-\\alpha-I_y) - L_y(C_{\\pi} + \\bar{I} + g + I_{D} \\cdot \\frac{D}{p})}{L_r(1-\\alpha-I_y) + I_r L_y}$$"     
+                                "$$r* = \\frac{\\frac{\\bar{M}}{p}(1-\\alpha-I_y) - L_y(-\\alpha t + C_{\\pi} + I_{D} \\cdot \\frac{D}{p} + \\bar{I} + g)}{L_r(1-\\alpha-I_y) + I_r L_y}$$"     
                        )
                 )
             )
@@ -121,8 +107,8 @@ server <- function(session, input, output) {
     
     compute_equilibrium <- function(alpha,iy,ir,id,cpi,bari,g,t,D,p,ly,lr,Ms){
         denom = lr*(1-alpha-iy) + ir*ly
-        eq_y = ((cpi+bari-alpha*t+g+id*D/p)*lr+ir*Ms/p)/denom
-        eq_r = (Ms/p*(1-alpha-iy)-ly*(cpi+bari-alpha*t+g+id*D/p))/denom
+        eq_y = ((-alpha*t+cpi+id*D/p+bari+g)*lr+ir*Ms/p)/denom
+        eq_r = (Ms/p*(1-alpha-iy)-ly*(-alpha*t+cpi+id*D/p+bari+g))/denom
         return(list(y = unname(eq_y), r = unname(eq_r)))
     }
         
@@ -142,21 +128,21 @@ server <- function(session, input, output) {
     },{
         values$p = input$p/100
 
-        values$params_IS = c("alpha" = input$alpha,
+        values$params = list("p" = values$p,
+                         "alpha" = input$alpha,
                           "iy" = input$iy,
                           "ir" = input$ir,
+                         "id" = input$id,
                           "cpi" = input$cpi,
                           "bari" = input$bari,
                           "g" = input$g,
-                          "t" = input$t)
-        
-        values$params_LM = c("p" = values$p,
+                          "t" = input$t,
                           "ly" = input$ly,
                           "lr" = input$lr,
                           "Ms" = input$Ms)
         
-        values$shocked_params_IS = values$params_IS
-        values$shocked_params_LM = values$params_LM
+        values$shocked_params_1 = values$params
+        values$shocked_params_2 = values$params
         
         values$eq = compute_equilibrium(input$alpha,input$iy,input$ir,input$id,input$cpi,input$bari,input$g,input$t,input$D,values$p,input$ly,input$lr,input$Ms)
     })
@@ -166,45 +152,53 @@ server <- function(session, input, output) {
     },{
         values$shock = !values$shock
         if(values$shock){
-            updateActionButton(session,"shock","Retirer le choc")
+            updateActionButton(session,"shock","Retirer les chocs")
         }
         else{
-            updateActionButton(session,"shock","Ajouter un choc")
+            updateActionButton(session,"shock","Ajouter des chocs")
         }
     })
     
     observeEvent({
-        input$shocked_var_IS
-        input$new_value_IS
+        input$shocked_var_1
+        input$new_value_1
     },{
         # browser()
         if(values$shock){
-            values$shocked_params_IS = values$params_IS
-            if(!is.na(input$new_value_IS)){
-                values$shocked_params_IS[input$shocked_var_IS] = input$new_value_IS
-                values$new_eq = compute_equilibrium(values$shocked_params_IS["alpha"],values$shocked_params_IS["iy"],values$shocked_params_IS["ir"],values$shocked_params_IS["id"],values$shocked_params_IS["cpi"],values$shocked_params_IS["bari"],values$shocked_params_IS["g"],values$shocked_params_IS["t"],input$D,values$shocked_params_LM["p"],values$shocked_params_LM["ly"],values$shocked_params_LM["lr"],values$shocked_params_LM["Ms"])
+            if(!is.na(input$new_value_1)){
+                if(input$shocked_var_1 == "p"){
+                    values$shocked_params_1$p = input$new_value_1/100
+                } else{
+                    values$shocked_params_1[input$shocked_var_1] = input$new_value_1
+                }
+                values$new_eq_1 = with(values$shocked_params_1, compute_equilibrium(alpha,iy,ir,id,cpi,bari,g,t,input$D,p,ly,lr,Ms))
             }
         }
     })
-    
+
     observeEvent({
-        input$shocked_var_LM
-        input$new_value_LM
+        input$shocked_var_2
+        input$new_value_2
     },{
         # browser()
         if(values$shock){
-            values$shocked_params_LM = values$params_LM
-            if(!is.na(input$new_value_LM)){
-                values$shocked_params_LM[input$shocked_var_LM] = input$new_value_LM
-                values$new_eq = compute_equilibrium(values$shocked_params_IS["alpha"],values$shocked_params_IS["iy"],values$shocked_params_IS["ir"],values$shocked_params_IS["id"],values$shocked_params_IS["cpi"],values$shocked_params_IS["bari"],values$shocked_params_IS["g"],values$shocked_params_IS["t"],input$D,values$shocked_params_LM["p"],values$shocked_params_LM["ly"],values$shocked_params_LM["lr"],values$shocked_params_LM["Ms"])
+            if(!is.na(input$new_value_2)){
+                values$shocked_params_2 = values$shocked_params_1
+                if(input$shocked_var_2 == "p"){
+                    values$shocked_params_2$p = input$new_value_2/100
+                } else{
+                    values$shocked_params_2[input$shocked_var_2] = input$new_value_2
+                }
+                values$new_eq_2 = with(values$shocked_params_2, compute_equilibrium(alpha,iy,ir,id,cpi,bari,g,t,input$D,p,ly,lr,Ms))
             }
         }
     })
     
-    output$diagrammes <- renderPlotly({
+    output$islm <- renderPlotly({
         fig = ISLMPlot(input,output,values)
         fig
     })
+    
 }
 
 shinyApp(ui = ui, server = server)

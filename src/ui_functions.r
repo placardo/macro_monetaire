@@ -2,15 +2,15 @@ choicesGlob = c("p")
 choicesNamesGlob = c("\\\\p")
 choicesGlob <- setNames(choicesGlob, choicesNamesGlob)
 
-choicesIS = c("alpha","iy","ir","cpi","bari","g","t","id")
+choicesIS = c("alpha","iy","ir","id","cpi","bari","g","t")
 choicesNamesIS = c("\\\\\\alpha",
                    "\\\\I_y",
                    "\\\\I_r",
+                   "\\\\I_d",
                    "\\\\C_{\\pi}",
                    "\\\\\\bar{I}",
                    "\\\\g",
-                   "\\\\t",
-                   "\\\\I_d")
+                   "\\\\t")
 choicesIS <- setNames(choicesIS, choicesNamesIS)
 
 choicesLM = c("ly","lr","ystar","Ms")
@@ -20,6 +20,31 @@ choicesNamesLM = c("\\\\L_y",
                    "\\\\M^s")
 choicesLM <- setNames(choicesLM, choicesNamesLM)
 
+shock_params <- function(vars,i){
+  shock <- fluidRow(
+              column(5,
+                     selectizeInput(paste0("shocked_var_",i),"Var. choquée:",
+                          vars,
+                          options = list(render = I("
+                                          {
+                                            item: function(item, escape) {
+                                                    var html = katex.renderToString(item.label);
+                                                    return '<div>' + html + '</div>';
+                                                  },
+                                            option: function(item, escape) {
+                                                      var html = katex.renderToString(item.label);
+                                                      return '<div>' + html + '</div>';
+                                                    }
+                                          }"))
+                          )
+                  ),
+                  column(5,
+                         numericInput(paste0("new_value_",i),"Nouvelle Valeur", value = NULL)
+                  )
+                )
+  
+  return(shock)
+}
 
 IS_shock <- selectizeInput("shocked_var_IS","Variable choquée (IS):",
                            choicesIS,
@@ -52,8 +77,12 @@ LM_shock <- selectizeInput("shocked_var_LM","Variable choquée (LM):",
 )
 
 glob_params <- fluidRow(
-  column(4,
+  column(3,
          numericInput("p","\\(p\\)",0,1000,value = 100,step=1)
+  ),
+  column(3),
+  column(6,
+          sliderInput("ymax","y max", 100,10000,2500,step = 100)          
   )
 )
 
