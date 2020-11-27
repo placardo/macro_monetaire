@@ -97,7 +97,7 @@ ui_LM_params1 <- fluidRow(
          numericInput("Ms","\\(M^s\\)", 0,4000,value=300,step = 100)       
   ),
   column(3,
-         numericInput("rmin", "\\(r_{min}\\)", 0,5,value=1,step=0.5)
+         numericInput("rmin", "\\(r_{min}\\)", -10,10,value=1,step=0.5)
   )
 )
 

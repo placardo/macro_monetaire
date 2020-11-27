@@ -58,7 +58,14 @@ ui <- fluidPage(
                    )
             ),
             column(9,
-                   plotlyOutput("islm", height = 600)
+                tabsetPanel(
+                    tabPanel("Aggregate demand",
+                        plotOutput("agg_demand", height = 600)
+                    ),
+                    tabPanel("ISLM",
+                        plotlyOutput("islm", height = 600)
+                    )
+                )
             )
         ),
         div(id = "model",
@@ -197,6 +204,23 @@ server <- function(session, input, output) {
     output$islm <- renderPlotly({
         fig = ISLMPlot(input,output,values)
         fig
+    })
+    
+    # output$agg_demand <- renderPlot({
+    #     disc = with(reactiveValuesToList(input), (lr*(-alpha*t+cpi+bari+g))/(lr*(1-alpha-iy)+ir*ly))
+    #     rev = seq(disc+1e-6,input$ymax, length.out = 1000)
+    #     prices = with(reactiveValuesToList(input), (ir*Ms+id*D*lr)/((lr*(1-alpha-iy)+ir*ly)*rev-lr*(-alpha*t+cpi+bari+g)))
+    #     plot(rev, prices, type = "l", ylim = c(0,150))
+    # })
+    
+    output$agg_demand <- renderPlot({
+        browser()
+        prices = seq(10/100,600/100, by = 0.01)
+        # rev = with(reactiveValuesToList(input), 1/prices*((ir*Ms+id*D*lr)+lr*(-alpha*t+cpi+bari+g))/(lr*(1-alpha-iy)+ir*ly))
+        rev = with(reactiveValuesToList(input), ((-alpha*t+cpi+id*D/prices+bari+g)*lr+ir*Ms/prices)/(lr*(1-alpha-iy)+ir*ly))
+        r = with(reactiveValuesToList(input), (Ms/prices*(1-alpha-iy)-ly*(-alpha*t+cpi+id*D/prices+bari+g))/(lr*(1-alpha-iy)+ir*ly))
+        rev[which(r<input$rmin)] = with(reactiveValuesToList(input), (cpi+id*D/prices[which(r<input$rmin)]+ir*rmin+bari+g)/(1-alpha-iy))
+        plot(rev, prices, type = "l", ylab = "prices")#, xlim = c(0,max(rev)))#, ylim = c(0,150))
     })
     
 }
